@@ -150,6 +150,27 @@ styleSheet.innerText = `
 document.head.appendChild(styleSheet);
 
 
+// --- SCROLL ANIMATION OBSERVER ---
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: "0px 0px -50px 0px" // Trigger slightly before fully in view
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('reveal-visible');
+            observer.unobserve(entry.target); // Animate only once
+        }
+    });
+}, observerOptions);
+
+document.addEventListener('DOMContentLoaded', () => {
+    const revealElements = document.querySelectorAll('.reveal-on-scroll');
+    revealElements.forEach(el => observer.observe(el));
+});
+
+
 // Smooth Scroll
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
@@ -317,7 +338,7 @@ const runVortex = () => {
     const edgesMat = new THREE.LineBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.5 });
 
     // STRAND 2: TEXT
-    const words = ["STORY", "DATA", "TEXT", "VOICE", "BRAND", "UX", "CODE", "IDEA", "COPY", "FLOW", "ART", "TECH"];
+    const words = ["DESIGN", "BROTHER", "FLOW", "IDEA", "TECH", "CODE", "COPY", "DATA", "ART"];
 
     // CONNECTING LINES (Rungs)
     const rungMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.2 });

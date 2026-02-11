@@ -44,31 +44,60 @@
     <div class="cursor-outline" data-cursor-outline></div>
 
     <main class="page-container">
-        <!-- New Architect Section Content (replaces previous place) -->
-        <section id="architect" class="panel dark-panel" style="min-height: 100vh; padding-top: 4rem;">
-            <div class="container">
-                <div class="section-header">
-                    <h2>The Architect</h2>
-                    <p class="subtitle">Designing the Invisible.</p>
-                </div>
-
-                <div class="synergy-content" style="max-width: 800px; margin: 0 auto; text-align: center;">
-                    <p class="synergy-lead">
-                        I believe that great design is not just about how it looks, but how it works.
-                        It's the silent ambassador of your brand. My approach combines rigorous grid systems
-                        with fluid, organic motion to create digital experiences that feel alive.
+        <!-- Hero Profile Section -->
+        <section class="synergy-section" style="padding-top: 8rem; min-height: 90vh;">
+            <div class="synergy-content">
+                <div class="synergy-left">
+                    <span class="section-tag reveal-on-scroll">The Visionary</span>
+                    <h1 class="synergy-title reveal-on-scroll reveal-delay-1">Designing<br><span
+                            style="color: var(--accent-designer);">The Future</span></h1>
+                    <p class="synergy-lead reveal-on-scroll reveal-delay-2">
+                        Precision meets passion. I craft digital experiences that blur the line between utility and art.
+                        Every pixel has a purpose, every interaction tells a story.
                     </p>
+                </div>
+                <div class="synergy-visual reveal-on-scroll reveal-delay-3">
+                    <div class="profile-frame"
+                        style="width: 100%; height: 500px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; position: relative; overflow: hidden; backdrop-filter: blur(10px);">
+                        <div
+                            style="position: absolute; inset: 0; background: radial-gradient(circle at 30% 30%, var(--accent-designer), transparent 50%); opacity: 0.3;">
+                        </div>
+                        <div
+                            style="position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                            <h2 style="font-size: 15rem; opacity: 0.05; font-family: var(--font-heading);">&</h2>
+                        </div>
+                        <div
+                            style="position: absolute; bottom: 30px; left: 30px; border-left: 2px solid var(--accent-designer); padding-left: 1rem;">
+                            <p style="text-transform: uppercase; letter-spacing: 2px; font-size: 0.9rem;">Architect</p>
+                            <p style="font-size: 0.8rem; opacity: 0.6;">Lead Designer</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-                    <div
-                        style="margin-top: 4rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; text-align: left;">
-                        <div class="method-card">
-                            <h3>Aesthetic</h3>
-                            <p>Clean lines, bold typography, and immersive imagery.</p>
-                        </div>
-                        <div class="method-card">
-                            <h3>Function</h3>
-                            <p>Fast load times, intuitive navigation, and accessible interfaces.</p>
-                        </div>
+        <!-- Philosophy Grid -->
+        <section class="panel" style="padding-bottom: 8rem;">
+            <div class="container">
+                <h2 class="synergy-title reveal-on-scroll"
+                    style="font-size: 3rem; text-align: center; margin-bottom: 4rem;">Core
+                    <span>Philosophy</span>
+                </h2>
+                <div class="showcase-grid">
+                    <div class="method-card reveal-on-scroll reveal-delay-1">
+                        <div class="card-num">01</div>
+                        <h3 style="color: var(--accent-designer);">Aesthetic</h3>
+                        <p>Beauty is a function. We create visuals that captivate and communicate instantly.</p>
+                    </div>
+                    <div class="method-card reveal-on-scroll reveal-delay-2">
+                        <div class="card-num">02</div>
+                        <h3 style="color: var(--accent-designer);">Function</h3>
+                        <p>Performance is paramount. Fast, accessible, and intuitive interactions that feel natural.</p>
+                    </div>
+                    <div class="method-card reveal-on-scroll reveal-delay-3">
+                        <div class="card-num">03</div>
+                        <h3 style="color: var(--accent-designer);">Emotion</h3>
+                        <p>Design that connects. We build interfaces that users feel, not just use.</p>
                     </div>
                 </div>
             </div>

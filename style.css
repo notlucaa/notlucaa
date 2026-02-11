@@ -1,6 +1,7 @@
 /* CSS Variables & Reset */
 :root {
-    --bg-dark: #050505;
+    --bg-dark: #0a0510;
+    /* Slightly richer dark background */
     --bg-card: rgba(255, 255, 255, 0.03);
     --text-light: #f4f4f4;
     --text-muted: rgba(255, 255, 255, 0.6);
@@ -31,10 +32,10 @@
 
 .scroll-progress-bar {
     height: 100%;
-    background: linear-gradient(90deg, #00f2ff, #ff0099);
+    background: linear-gradient(90deg, #d8b4fe, #00ffd5);
     width: 0%;
     transition: width 0.1s;
-    box-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+    box-shadow: 0 0 10px rgba(216, 180, 254, 0.5);
 }
 
 * {
@@ -240,13 +241,15 @@ a {
     z-index: -1;
     overflow: hidden;
     pointer-events: none;
+    background: linear-gradient(to bottom, #0a0510, #000000);
+    /* Subtle gradient base */
 }
 
 .orb {
     position: absolute;
     border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.4;
+    filter: blur(100px);
+    opacity: 0.6;
     animation: drift 20s infinite alternate;
 }
 
@@ -255,7 +258,7 @@ a {
     left: -10%;
     width: 50vw;
     height: 50vw;
-    background: radial-gradient(circle, #2b5876, transparent);
+    background: radial-gradient(circle, var(--accent-designer), transparent 70%);
     animation-delay: 0s;
 }
 
@@ -264,16 +267,16 @@ a {
     right: -10%;
     width: 60vw;
     height: 60vw;
-    background: radial-gradient(circle, #4e4376, transparent);
+    background: radial-gradient(circle, var(--accent-copy), transparent 70%);
     animation-delay: -5s;
 }
 
 .orb-3 {
     top: 40%;
     left: 40%;
-    width: 30vw;
-    height: 30vw;
-    background: radial-gradient(circle, #9d50bb, transparent);
+    width: 40vw;
+    height: 40vw;
+    background: radial-gradient(circle, rgba(118, 75, 162, 0.4), transparent 70%);
     animation-delay: -10s;
 }
 

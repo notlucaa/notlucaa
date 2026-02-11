@@ -245,178 +245,157 @@ const runVortex = () => {
     const vortexContainer = document.getElementById('vortex-container');
     if (!vortexContainer) return;
 
-    // Wait for THREE if loaded async
     if (typeof THREE === 'undefined') {
         setTimeout(runVortex, 100);
         return;
     }
 
+    // --- SETUP SCENE ---
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, vortexContainer.clientWidth / vortexContainer.clientHeight, 0.1, 100);
-    camera.position.z = 2; // Close view
+    scene.background = null;
+
+    // Camera setup for DNA view
+    const camera = new THREE.PerspectiveCamera(45, vortexContainer.clientWidth / vortexContainer.clientHeight, 0.1, 100);
+    camera.position.set(0, 0, 14);
 
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setSize(vortexContainer.clientWidth, vortexContainer.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    vortexContainer.innerHTML = ''; // Clear strict
+    renderer.useLegacyLights = false;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
+
+    vortexContainer.innerHTML = '';
     vortexContainer.appendChild(renderer.domElement);
 
-    // SYNERGY TOTEM (B&F AntiGravity Representation)
-    const synergyGroup = new THREE.Group();
-    scene.add(synergyGroup);
+    const helixGroup = new THREE.Group();
+    scene.add(helixGroup);
 
-    // 1. The "Design" Component (Smooth, Flowing)
-    const designGeom = new THREE.TorusKnotGeometry(1.2, 0.3, 100, 16);
-    const designMat = new THREE.MeshPhongMaterial({
-        color: 0x00f2ff,
-        emissive: 0x004455,
-        shininess: 100,
-        transparent: true,
-        opacity: 0.8
-    });
-    const designMesh = new THREE.Mesh(designGeom, designMat);
-    designMesh.position.x = -1.5;
-    synergyGroup.add(designMesh);
+    // --- ASSETS ---
+    const createWordTexture = (word, color) => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 256;
+        canvas.height = 128;
+        const ctx = canvas.getContext('2d');
 
-    // 2. The "Copywriting" Component (Sharp, Strategic)
-    const copyGeom = new THREE.OctahedronGeometry(1.4, 0);
-    const copyMat = new THREE.MeshPhongMaterial({
+        ctx.fillStyle = color;
+        ctx.font = 'bold 50px "Outfit", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 15;
+        ctx.fillText(word, 128, 64);
+
+        return new THREE.CanvasTexture(canvas);
+    };
+
+    const glassMat = new THREE.MeshPhysicalMaterial({
         color: 0xffffff,
-        emissive: 0x222222,
-        flatShading: true,
+        metalness: 0.1,
+        roughness: 0.1,
+        transmission: 0.9,
+        thickness: 0.5,
         transparent: true,
-        opacity: 0.9
-    });
-    const copyMesh = new THREE.Mesh(copyGeom, copyMat);
-    copyMesh.position.x = 1.5;
-    synergyGroup.add(copyMesh);
-
-    // 3. The "Interaction" (Connection Lines)
-    const lineMat = new THREE.LineBasicMaterial({ color: 0x00f2ff, transparent: true, opacity: 0.2 });
-    for (let i = 0; i < 8; i++) {
-        const lineGeom = new THREE.BufferGeometry().setFromPoints([
-            new THREE.Vector3(-1.5, (Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2),
-            new THREE.Vector3(1.5, (Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2)
-        ]);
-        const line = new THREE.Line(lineGeom, lineMat);
-        synergyGroup.add(line);
-    }
-
-    // 4. Floating Particles (AntiGravity Dust)
-    const dustCount = 100;
-    const dustGeom = new THREE.BufferGeometry();
-    const dustPos = new Float32Array(dustCount * 3);
-    for (let i = 0; i < dustCount; i++) {
-        dustPos[i * 3] = (Math.random() - 0.5) * 8;
-        dustPos[i * 3 + 1] = (Math.random() - 0.5) * 8;
-        dustPos[i * 3 + 2] = (Math.random() - 0.5) * 8;
-    }
-    dustGeom.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
-    const dustMat = new THREE.PointsMaterial({ size: 0.05, color: 0xffffff, transparent: true, opacity: 0.5 });
-    const dust = new THREE.Points(dustGeom, dustMat);
-    synergyGroup.add(dust);
-
-    // Lighting
-    const light1 = new THREE.PointLight(0x00f2ff, 2, 15);
-    light1.position.set(2, 5, 2);
-    scene.add(light1);
-
-    const light2 = new THREE.PointLight(0xffffff, 1, 15);
-    light2.position.set(-2, -5, 2);
-    scene.add(light2);
-
-    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-
-    // 3. Background Stars (Context & Depth)
-    const starsCount = 2000;
-    const starsGeometry = new THREE.BufferGeometry();
-    const starsPos = new Float32Array(starsCount * 3);
-    const starsSizes = new Float32Array(starsCount);
-
-    for (let i = 0; i < starsCount; i++) {
-        const i3 = i * 3;
-        // Spread stars far away
-        const r = 20 + Math.random() * 30;
-        const theta = Math.random() * Math.PI * 2;
-        const phi = Math.random() * Math.PI;
-
-        starsPos[i3] = r * Math.sin(phi) * Math.cos(theta);
-        starsPos[i3 + 1] = r * Math.sin(phi) * Math.sin(theta);
-        starsPos[i3 + 2] = r * Math.cos(phi);
-
-        starsSizes[i] = Math.random() * 0.05;
-    }
-    starsGeometry.setAttribute('position', new THREE.BufferAttribute(starsPos, 3));
-    starsGeometry.setAttribute('scale', new THREE.BufferAttribute(starsSizes, 1));
-
-    const starsMaterial = new THREE.PointsMaterial({
-        color: 0xffffff,
-        size: 0.05,
-        transparent: true,
-        opacity: 0.4,
-        sizeAttenuation: true
+        opacity: 0.8,
+        clearcoat: 1.0,
+        side: THREE.DoubleSide
     });
 
-    const stars = new THREE.Points(starsGeometry, starsMaterial);
-    scene.add(stars);
+    const strandRadius = 2.5;
+    const strandHeight = 9;
+    const itemsPerStrand = 18;
+    const turns = 1.5;
 
-    // Initial Position
-    synergyGroup.rotation.x = 0.2;
-    synergyGroup.scale.set(0.6, 0.6, 0.6);
+    // STRAND 1: GLASS CUBES
+    const cubeGeo = new THREE.BoxGeometry(0.6, 0.6, 0.6);
+    const edgesGeo = new THREE.EdgesGeometry(cubeGeo);
+    const edgesMat = new THREE.LineBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.4 });
 
-    // Pull camera back 
-    camera.position.z = 8;
+    for (let i = 0; i < itemsPerStrand; i++) {
+        const t = i / (itemsPerStrand - 1);
+        const angle = t * Math.PI * 2 * turns;
+        const y = (t - 0.5) * strandHeight;
 
-    // Mouse Interaction
-    let mouseX = 0; let mouseY = 0;
-    let targetX = 0; let targetY = 0;
+        const x = Math.cos(angle) * strandRadius;
+        const z = Math.sin(angle) * strandRadius;
+
+        const cube = new THREE.Mesh(cubeGeo, glassMat);
+        cube.position.set(x, y, z);
+        cube.rotation.set(Math.random(), Math.random(), Math.random());
+        cube.add(new THREE.LineSegments(edgesGeo, edgesMat));
+        helixGroup.add(cube);
+    }
+
+    // STRAND 2: TEXT
+    const words = ["STORY", "DATA", "TEXT", "VOICE", "BRAND", "UX", "CODE", "IDEA", "COPY"];
+    for (let i = 0; i < itemsPerStrand; i++) {
+        const t = i / (itemsPerStrand - 1);
+        const angle = t * Math.PI * 2 * turns + Math.PI; // Phase shift
+        const y = (t - 0.5) * strandHeight;
+
+        const x = Math.cos(angle) * strandRadius;
+        const z = Math.sin(angle) * strandRadius;
+
+        const tex = createWordTexture(words[i % words.length], '#d8b4fe');
+        const planeGeo = new THREE.PlaneGeometry(2.0, 1.0);
+        const planeMat = new THREE.MeshBasicMaterial({
+            map: tex, transparent: true, opacity: 0.9, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending
+        });
+
+        const label = new THREE.Mesh(planeGeo, planeMat);
+        label.position.set(x, y, z);
+        label.lookAt(0, y, 0);
+        helixGroup.add(label);
+    }
+
+    // --- LIGHTING ---
+    const cyanLight = new THREE.PointLight(0x00ffff, 2, 20);
+    cyanLight.position.set(5, 5, 5);
+    scene.add(cyanLight);
+
+    const violetLight = new THREE.PointLight(0x8a2be2, 2, 20);
+    violetLight.position.set(-5, -5, 5);
+    scene.add(violetLight);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.2));
+
+    // --- ANIMATION ---
+    const clock = new THREE.Clock();
+    let targetRotationY = 0;
     const windowHalfX = window.innerWidth / 2;
 
     document.addEventListener('mousemove', (event) => {
-        mouseX = (event.clientX - windowHalfX) * 0.001;
-        mouseY = (event.clientY / window.innerHeight - 0.5) * 2;
+        const mouseX = (event.clientX - windowHalfX) * 0.001;
+        targetRotationY = mouseX * 2;
     });
 
-    // Animation Loop
-    let time = 0;
     const animate = () => {
         requestAnimationFrame(animate);
-        time += 0.01;
+        const time = clock.getElapsedTime();
 
-        // Individual movement (Synergy concept)
-        designMesh.rotation.y += 0.02;
-        designMesh.rotation.z += 0.01;
-        designMesh.position.y = Math.sin(time) * 0.2;
+        helixGroup.rotation.y += 0.003;
+        helixGroup.rotation.y += 0.05 * (targetRotationY - (helixGroup.rotation.y % 1)); // Gentle nudge
 
-        copyMesh.rotation.x += 0.01;
-        copyMesh.rotation.z += 0.02;
-        copyMesh.position.y = Math.cos(time) * 0.2;
+        helixGroup.position.y = Math.sin(time * 0.5) * 0.3;
 
-        // Group Parallax
-        targetX = mouseX * 0.5;
-        targetY = mouseY * 0.2;
-        synergyGroup.rotation.y += 0.05 * (targetX - synergyGroup.rotation.y);
-        synergyGroup.rotation.x += 0.05 * (targetY - (synergyGroup.rotation.x - 0.2));
-
-        // Floating dust
-        dust.rotation.y += 0.001;
-
-        // Background stars
-        stars.rotation.y = time * 0.01;
+        helixGroup.children.forEach(child => {
+            // Make cubes slowly tumble
+            if (child.geometry.type === 'BoxGeometry') {
+                child.rotation.x += 0.01;
+                child.rotation.y += 0.01;
+            }
+        });
 
         renderer.render(scene, camera);
     };
 
     animate();
-
-    // Resize Handler
     const handleResize = () => {
         if (!vortexContainer) return;
         camera.aspect = vortexContainer.clientWidth / vortexContainer.clientHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(vortexContainer.clientWidth, vortexContainer.clientHeight);
     };
-
     window.addEventListener('resize', handleResize);
 };
 

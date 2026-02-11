@@ -150,6 +150,87 @@ styleSheet.innerText = `
 document.head.appendChild(styleSheet);
 
 
+// --- STARRY NIGHT BACKGROUND ---
+const createStarryNight = () => {
+    const container = document.querySelector('.ambient-bg');
+    if (!container) return;
+
+    const canvas = document.createElement('canvas');
+    canvas.style.position = 'absolute';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.zIndex = '-1'; // Behind orbs
+    // Blend mode to ensure stars shine through dark parts
+    canvas.style.mixBlendMode = 'screen';
+
+    // Insert before orbs (or append if you want them on top of nebula)
+    // Prepending puts them BEHIND the orbs (nebula covers stars)
+    if (container.firstChild) {
+        container.insertBefore(canvas, container.firstChild);
+    } else {
+        container.appendChild(canvas);
+    }
+
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    let stars = [];
+
+    const resize = () => {
+        width = container.clientWidth;
+        height = container.clientHeight;
+        canvas.width = width;
+        canvas.height = height;
+        initStars();
+    };
+
+    const initStars = () => {
+        stars = [];
+        const starCount = Math.floor((width * height) / 6000); // Lower density (lighter)
+        for (let i = 0; i < starCount; i++) {
+            stars.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                size: Math.random() * 1.2, // Smaller stars
+                alpha: Math.random(),
+                speed: Math.random() * 0.015, // Slower twinkle
+                baseAlpha: Math.random() * 0.3 + 0.1 // Fainter (0.1 to 0.4)
+            });
+        }
+    };
+
+    const animateStars = () => {
+        if (!container.isConnected) return; // Stop if container removed
+
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = 'white';
+
+        stars.forEach(star => {
+            // Twinkle
+            star.alpha += star.speed;
+            const opacity = star.baseAlpha + Math.sin(star.alpha) * 0.15; // Softer twinkle
+
+            ctx.globalAlpha = Math.max(0, Math.min(1, opacity));
+            ctx.beginPath();
+            ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        requestAnimationFrame(animateStars);
+    };
+
+    window.addEventListener('resize', resize);
+    resize();
+    animateStars();
+};
+// Initialize Stars
+document.addEventListener('DOMContentLoaded', createStarryNight);
+
+
+// --- SCROLL ANIMATION OBSERVER ---
+
+
 // --- SCROLL ANIMATION OBSERVER ---
 const observerOptions = {
     threshold: 0.1,

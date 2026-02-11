@@ -1,7 +1,7 @@
 /* CSS Variables & Reset */
 :root {
-    --bg-dark: #0a0510;
-    /* Slightly richer dark background */
+    --bg-dark: #1a1625;
+    /* Lighter, softer dark background */
     --bg-card: rgba(255, 255, 255, 0.03);
     --text-light: #f4f4f4;
     --text-muted: rgba(255, 255, 255, 0.6);
@@ -385,23 +385,39 @@ a {
 }
 
 .designer-side {
-    background: radial-gradient(circle at center, rgba(216, 180, 254, 0.15) 0%, #050505 100%);
+    background: radial-gradient(circle at center, rgba(216, 180, 254, 0.15) 0%, var(--bg-dark) 100%), var(--bg-dark);
     border-right: 1px solid rgba(255, 255, 255, 0.05);
+    z-index: 1;
+    /* Ensure it sits above stars */
 }
 
 .copywriter-side {
-    background: radial-gradient(circle at center, rgba(0, 255, 213, 0.15) 0%, #050505 100%);
+    background: radial-gradient(circle at center, rgba(0, 255, 213, 0.15) 0%, var(--bg-dark) 100%), var(--bg-dark);
+    z-index: 1;
+    /* Ensure it sits above stars */
 }
 
 .hero-split:hover .split-side {
     opacity: 0.3;
     filter: blur(2px);
+    background: var(--bg-dark);
+    /* Keep opaque on hover */
 }
 
 .hero-split .split-side:hover {
     flex: 1.8;
     opacity: 1;
     filter: blur(0);
+    background: radial-gradient(circle at center, rgba(216, 180, 254, 0.2) 0%, var(--bg-dark) 100%), var(--bg-dark);
+}
+
+/* Specific hover overrides for colors */
+.hero-split .designer-side:hover {
+    background: radial-gradient(circle at center, rgba(216, 180, 254, 0.25) 0%, var(--bg-dark) 100%), var(--bg-dark);
+}
+
+.hero-split .copywriter-side:hover {
+    background: radial-gradient(circle at center, rgba(0, 255, 213, 0.25) 0%, var(--bg-dark) 100%), var(--bg-dark);
 }
 
 .content h1 {
@@ -678,12 +694,23 @@ a {
     opacity: 1;
 }
 
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px) brightness(1.2);
+    opacity: 0.7;
+    /* More vibrant */
+    animation: drift 20s infinite alternate;
+}
+
 .card-num {
     font-family: var(--font-heading);
     font-size: 8rem;
     line-height: 1;
-    color: white;
-    opacity: 0.03;
+    color: var(--accent-copy);
+    /* Blue/Teal */
+    opacity: 0.15;
+    /* Visible blue tint */
     position: absolute;
     top: -1rem;
     right: -1rem;

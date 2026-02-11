@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Insight | Newsletter</title>
+    <meta name="description" content="Design & Words. The weekly synthesis. Join the circle.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- React & Babel CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* Specific page adjustments */
+        body {
+            overflow-y: auto;
+            background: #0f0f0f;
+        }
+
+        /* Ensure cursor is on top */
+        .cursor-dot,
+        .cursor-outline {
+            z-index: 99999;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Ambient Background -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <!-- Custom Cursor -->
+    <div class="cursor-dot" data-cursor-dot></div>
+    <div class="cursor-outline" data-cursor-outline></div>
+
+    <main style="display: flex; justify-content: center; align-items: center; min-height: 100vh;">
+        <!-- React Mount Point -->
+        <div id="react-root" style="width: 100%; max-width: 1200px; padding: 2rem;"></div>
+    </main>
+
+    <!-- Back Button -->
+    <a href="index.html" class="back-btn">
+        <span>Back</span>
+    </a>
+
+    <!-- React Component Logic -->
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const NewsletterComponent = () => {
+            const [email, setEmail] = useState('');
+            const [isSubmitted, setIsSubmitted] = useState(false);
+            const [isLoading, setIsLoading] = useState(false);
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                setIsLoading(true);
+
+                try {
+                    // Accès à l'instance Supabase globale définie dans script.js
+                    if (!window.supabaseInstance) {
+                        throw new Error("Supabase is not initialized.");
+                    }
+                    const { error } = await window.supabaseInstance
+                        .from('newsletter')
+                        .insert([{ email: email }]);
+
+                    if (error) throw error;
+
+                    setIsSubmitted(true);
+                } catch (error) {
+                    console.error('Newsletter Error:', error.message);
+                    alert("Oups ! Une erreur est survenue lors de l'inscription : " + error.message);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+
+            return (
+                <div className="newsletter-container">
+                    {!isSubmitted ? (
+                        <div className="newsletter-card">
+                            <div className="newsletter-visual">
+                                <div className="abstract-orb"></div>
+                                <div className="visual-caption">
+                                    <span>Design & Words</span>
+                                    <p>The weekly synthesis.</p>
+                                </div>
+                            </div>
+                            <div className="newsletter-content">
+                                <div className="newsletter-header">
+                                    <span className="badge">Limited Access</span>
+                                    <h2>The Insight</h2>
+                                    <p>Rejoignez 2000+ créatifs. Apprenez à fusionner l'esthétique et la persuasion pour transformer votre business.</p>
+                                </div>
+                                <form className="newsletter-form" onSubmit={handleSubmit}>
+                                    <div className="input-wrapper">
+                                        <input
+                                            type="email"
+                                            placeholder="votre@email.com"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            required
+                                        />
+                                        <div className="focus-border"></div>
+                                    </div>
+                                    <button type="submit" className={`submit-btn ${isLoading ? 'loading' : ''}`}>
+                                        {isLoading ? 'Processing...' : 'Join The Circle'}
+                                    </button>
+                                </form>
+                                <p className="privacy-note">Zéro spam. Uniquement de la valeur. Désinscription en 1 clic.</p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="success-state">
+                            <div className="success-visual">
+                                <div className="check-ring"></div>
+                                <div className="check-mark">✓</div>
+                            </div>
+                            <div className="success-text">
+                                <h2>Bienvenue dans le cercle.</h2>
+                                <p>C'est le début de quelque chose de grand. Votre premier "Insight" arrive bientôt dans votre boîte mail.</p>
+                                <span className="success-footer">Vérifiez vos spams au cas où.</span>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const rootElement = document.getElementById('react-root');
+        if (rootElement) {
+            const root = ReactDOM.createRoot(rootElement);
+            root.render(<NewsletterComponent />);
+        }
+    </script>
+
+    <!-- Normal JS -->
+    <script src="script.js"></script>
+</body>
+
+</html>

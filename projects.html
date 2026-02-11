@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Projects | B&F</title>
+    <meta name="description" content="Discover our latest projects where design meets strategy.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Supabase CDN (Required for script.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* Specific page adjustments */
+        body {
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Ambient Background -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Custom Cursor -->
+    <div class="cursor-dot" data-cursor-dot></div>
+    <div class="cursor-outline" data-cursor-outline></div>
+
+    <main class="page-container">
+        <!-- Projects Section Content (formerly Architect) -->
+        <section id="projects" class="panel dark-panel" style="min-height: 100vh; padding-top: 4rem;">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Our Projects</h2>
+                    <p class="subtitle">Where vision meets execution.</p>
+                </div>
+                <div class="showcase-grid">
+                    <div class="card design-card">
+                        <div class="card-visual" style="background: linear-gradient(45deg, #2b5876, #4e4376);"></div>
+                        <div class="card-info">
+                            <h3>Brand Identity</h3>
+                            <p>Logos, Systems, Guidelines.</p>
+                        </div>
+                    </div>
+                    <div class="card design-card">
+                        <div class="card-visual" style="background: linear-gradient(45deg, #cc2b5e, #753a88);"></div>
+                        <div class="card-info">
+                            <h3>Web Experiences</h3>
+                            <p>Immersive, Responsive, Fast.</p>
+                        </div>
+                    </div>
+                    <div class="card design-card">
+                        <div class="card-visual" style="background: linear-gradient(45deg, #42275a, #734b6d);"></div>
+                        <div class="card-info">
+                            <h3>UI/UX Design</h3>
+                            <p>Research-backed interfaces.</p>
+                        </div>
+                    </div>
+
+                    <!-- New Cards -->
+                    <div class="card design-card">
+                        <div class="card-visual" style="background: linear-gradient(45deg, #1fa2ff, #12d8fa, #a6ffcb);">
+                        </div>
+                        <div class="card-info">
+                            <h3>Motion Design</h3>
+                            <p>Animations that breathe life.</p>
+                        </div>
+                    </div>
+                    <div class="card design-card">
+                        <div class="card-visual" style="background: linear-gradient(45deg, #fc4a1a, #f7b733);"></div>
+                        <div class="card-info">
+                            <h3>3D Visuals</h3>
+                            <p>Depth and realism.</p>
+                        </div>
+                    </div>
+                    <div class="card design-card">
+                        <div class="card-visual" style="background: linear-gradient(45deg, #00c6ff, #0072ff);"></div>
+                        <div class="card-info">
+                            <h3>Design Systems</h3>
+                            <p>Scalable UI libraries.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Back Button -->
+    <a href="index.html" class="back-btn">
+        <span>Back</span>
+    </a>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

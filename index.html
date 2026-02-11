@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Architect & The Voice | Designer + Copywriter</title>
+    <meta name="description"
+        content="A creative duo. One builds the visual world, the other gives it a voice. Premium Web Design & Strategic Copywriting.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- React & Babel CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+
+<body>
+
+    <div class="cursor-dot" data-cursor-dot></div>
+    <div class="cursor-outline" data-cursor-outline></div>
+
+    <!-- Scroll Progress Bar -->
+    <div class="scroll-progress-container">
+        <div class="scroll-progress-bar" id="scrollBar"></div>
+    </div>
+
+    <!-- Ambient Background -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <header class="main-header">
+        <nav>
+            <div class="logo logo-glitch" data-text="B&F">B&F</div>
+            <ul class="nav-links">
+                <li><a href="#presentation" data-hover="Start">Home</a></li>
+                <li><a href="#hero" data-hover="Synergy">About</a></li>
+                <li><a href="projects.html" data-hover="Works">Projects</a></li>
+                <li><a href="newsletter.html" data-hover="Join">Newsletter</a></li>
+                <li><a href="#contact" class="btn-primary">Contact us</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Presentation Section: The Synergy -->
+        <section id="presentation" class="synergy-section">
+            <div class="container">
+                <div class="synergy-grid">
+                    <div class="synergy-content">
+                        <div class="synergy-left">
+                            <div class="synergy-text">
+                                <span class="section-tag">Presentation</span>
+                                <h2 class="synergy-title">L'Art de la <span>Fusion</span></h2>
+                                <p class="synergy-lead">Un design sans histoire est vide. Une histoire sans design est
+                                    invisible. Nous fusionnons l’esthétique radicale et la persuasion psychologique pour
+                                    créer
+                                    des marques que l'on ne peut pas ignorer.</p>
+                            </div>
+
+                            <div class="method-cards">
+                                <div class="method-card">
+                                    <div class="card-num">01</div>
+                                    <h3>Immersion</h3>
+                                    <p>On plonge dans votre univers pour extraire l'essence de votre message.</p>
+                                </div>
+                                <div class="method-card">
+                                    <div class="card-num">02</div>
+                                    <h3>Conception</h3>
+                                    <p>Le visuel et le verbe se matérialisent en parfaite synchronisation.</p>
+                                </div>
+                                <div class="method-card">
+                                    <div class="card-num">03</div>
+                                    <h3>Impact</h3>
+                                    <p>Un produit fini qui ne se contente pas de s'afficher : il convertit.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Visual Container for 3D Vortex -->
+                        <div class="synergy-visual" id="vortex-container"></div>
+
+
+                    </div>
+                </div>
+            </div>
+            <div class="scroll-down-indicator">
+                <div class="mouse"></div>
+                <p>Découvrir l'Architecte</p>
+            </div>
+        </section>
+
+        <!-- Hero Section: The Split -->
+        <section id="hero" class="hero-split">
+            <div class="split-side designer-side">
+                <div class="content">
+                    <h1 class="glitch-text" data-text="Visuals">Visuals</h1>
+                    <p>That stop the scroll.</p>
+                    <a href="projects.html" class="explore-btn">See Projects</a>
+                </div>
+                <div class="bg-overlay"></div>
+            </div>
+            <div class="split-side copywriter-side">
+                <div class="content">
+                    <h1 class="glitch-text" data-text="Words">Words</h1>
+                    <p>That close the deal.</p>
+                    <a href="architect.html" class="explore-btn">Meet Architect</a>
+                </div>
+                <div class="bg-overlay"></div>
+            </div>
+            <div class="center-amper">
+                <span>&</span>
+            </div>
+        </section>
+
+        <!-- Preview Projects Section (Embedded) -->
+        <section id="projects-preview" class="panel dark-panel" style="min-height: 80vh;">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Selected Works</h2>
+                    <p class="subtitle">A glimpse of our craft.</p>
+                </div>
+                <div class="showcase-grid">
+                    <div class="card design-card">
+                        <div class="card-visual" style="background: linear-gradient(45deg, #2b5876, #4e4376);"></div>
+                        <div class="card-info">
+                            <h3>Brand Identity</h3>
+                            <p>Logos, Systems, Guidelines.</p>
+                        </div>
+                    </div>
+                    <div class="card design-card">
+                        <div class="card-visual" style="background: linear-gradient(45deg, #cc2b5e, #753a88);"></div>
+                        <div class="card-info">
+                            <h3>Web Experiences</h3>
+                            <p>Immersive, Responsive, Fast.</p>
+                        </div>
+                    </div>
+                    <div class="card design-card">
+                        <div class="card-visual" style="background: linear-gradient(45deg, #42275a, #734b6d);"></div>
+                        <div class="card-info">
+                            <h3>UI/UX Design</h3>
+                            <p>Research-backed interfaces.</p>
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 3rem;">
+                    <a href="projects.html" class="explore-btn">View All Projects</a>
+                </div>
+            </div>
+        </section>
+
+
+
+
+
+
+
+        <!-- Contact / Unity Section -->
+        <section id="contact" class="unity-section">
+            <div class="container tac">
+                <div class="glass-form-card" id="contact-card">
+                    <div class="form-header">
+                        <h2>Better Together</h2>
+                        <p>When design meets narrative, magic happens.</p>
+                    </div>
+                    <form class="contact-form" id="contact-form">
+                        <div class="input-group">
+                            <input type="text" name="name" class="input-field" required placeholder=" ">
+                            <label class="input-label">Your Name</label>
+                        </div>
+                        <div class="input-group">
+                            <input type="email" name="email" class="input-field" required placeholder=" ">
+                            <label class="input-label">Your Email</label>
+                        </div>
+                        <div class="input-group">
+                            <textarea name="message" class="input-field" rows="4" required placeholder=" "></textarea>
+                            <label class="input-label">Tell us about your project</label>
+                        </div>
+                        <button type="submit" class="btn-submit" id="submit-btn">
+                            <span class="btn-text">Launch Project</span>
+                            <span class="btn-loader"></span>
+                        </button>
+                    </form>
+
+                    <div class="success-message" id="success-msg">
+                        <div class="check-icon">✓</div>
+                        <h3>Message Sent!</h3>
+                        <p>We'll get back to you within 24h.</p>
+                        <button class="btn-reset" onclick="resetForm()">Send Another</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Lucas & Bro. All rights reserved.</p>
+    </footer>
+
+
+
+    <!-- Normal JS -->
+    <script src="script.js"></script>
+</body>
+
+</html>

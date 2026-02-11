@@ -254,8 +254,8 @@ const runVortex = () => {
     const scene = new THREE.Scene();
     scene.background = null;
 
-    // Camera setup for DNA view
-    const camera = new THREE.PerspectiveCamera(45, vortexContainer.clientWidth / vortexContainer.clientHeight, 0.1, 100);
+    // Camera setup: Zoomed In for impact (Z=14)
+    const camera = new THREE.PerspectiveCamera(40, vortexContainer.clientWidth / vortexContainer.clientHeight, 0.1, 100);
     camera.position.set(0, 0, 14);
 
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -269,6 +269,10 @@ const runVortex = () => {
     vortexContainer.appendChild(renderer.domElement);
 
     const helixGroup = new THREE.Group();
+    // Centered but larger
+    helixGroup.position.x = 0;
+    // Tilt slightly towards center
+    helixGroup.rotation.z = 0.1;
     scene.add(helixGroup);
 
     // --- ASSETS ---
@@ -291,62 +295,116 @@ const runVortex = () => {
 
     const glassMat = new THREE.MeshPhysicalMaterial({
         color: 0xffffff,
-        metalness: 0.1,
+        metalness: 0.2, // Slightly more metallic
         roughness: 0.1,
-        transmission: 0.9,
+        transmission: 0.95,
         thickness: 0.5,
         transparent: true,
-        opacity: 0.8,
-        clearcoat: 1.0,
+        opacity: 0.7,
+        mainMaterial: true,
         side: THREE.DoubleSide
     });
 
+    // DNA Config - RESTORED & DETAILED
     const strandRadius = 2.5;
-    const strandHeight = 9;
-    const itemsPerStrand = 18;
-    const turns = 1.5;
+    const strandHeight = 12;
+    const itemsPerStrand = 24; // More items for density
+    const turns = 1.8;
 
     // STRAND 1: GLASS CUBES
-    const cubeGeo = new THREE.BoxGeometry(0.6, 0.6, 0.6);
+    const cubeGeo = new THREE.BoxGeometry(0.4, 0.4, 0.4); // Smaller cubes
     const edgesGeo = new THREE.EdgesGeometry(cubeGeo);
-    const edgesMat = new THREE.LineBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.4 });
+    const edgesMat = new THREE.LineBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.5 });
+
+    // STRAND 2: TEXT
+    const words = ["STORY", "DATA", "TEXT", "VOICE", "BRAND", "UX", "CODE", "IDEA", "COPY", "FLOW", "ART", "TECH"];
+
+    // CONNECTING LINES (Rungs)
+    const rungMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.2 });
+
+    // DETAILS: Glowing Nodes
+    const nodeGeo = new THREE.SphereGeometry(0.08, 8, 8);
+    const nodeMat = new THREE.MeshBasicMaterial({ color: 0x00ffff });
 
     for (let i = 0; i < itemsPerStrand; i++) {
         const t = i / (itemsPerStrand - 1);
         const angle = t * Math.PI * 2 * turns;
         const y = (t - 0.5) * strandHeight;
 
-        const x = Math.cos(angle) * strandRadius;
-        const z = Math.sin(angle) * strandRadius;
+        // Position 1 (Cube Strand)
+        const x1 = Math.cos(angle) * strandRadius;
+        const z1 = Math.sin(angle) * strandRadius;
 
+        // Position 2 (Text Strand - Phase shifted PI)
+        const x2 = Math.cos(angle + Math.PI) * strandRadius;
+        const z2 = Math.sin(angle + Math.PI) * strandRadius;
+
+        // 1. Create Cube
         const cube = new THREE.Mesh(cubeGeo, glassMat);
-        cube.position.set(x, y, z);
+        cube.position.set(x1, y, z1);
         cube.rotation.set(Math.random(), Math.random(), Math.random());
         cube.add(new THREE.LineSegments(edgesGeo, edgesMat));
         helixGroup.add(cube);
-    }
 
-    // STRAND 2: TEXT
-    const words = ["STORY", "DATA", "TEXT", "VOICE", "BRAND", "UX", "CODE", "IDEA", "COPY"];
-    for (let i = 0; i < itemsPerStrand; i++) {
-        const t = i / (itemsPerStrand - 1);
-        const angle = t * Math.PI * 2 * turns + Math.PI; // Phase shift
-        const y = (t - 0.5) * strandHeight;
+        // NODE 1 (Cube side only)
+        const n1 = new THREE.Mesh(nodeGeo, nodeMat);
+        n1.position.copy(cube.position);
+        helixGroup.add(n1);
 
-        const x = Math.cos(angle) * strandRadius;
-        const z = Math.sin(angle) * strandRadius;
-
-        const tex = createWordTexture(words[i % words.length], '#d8b4fe');
-        const planeGeo = new THREE.PlaneGeometry(2.0, 1.0);
+        // 2. Create Text
+        const tex = createWordTexture(words[i % words.length], '#e0c3fc'); // Brighter purple
+        const planeGeo = new THREE.PlaneGeometry(1.6, 0.8);
         const planeMat = new THREE.MeshBasicMaterial({
-            map: tex, transparent: true, opacity: 0.9, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending
+            map: tex, transparent: true, opacity: 1.0, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending
         });
-
         const label = new THREE.Mesh(planeGeo, planeMat);
-        label.position.set(x, y, z);
+        label.position.set(x2, y, z2);
         label.lookAt(0, y, 0);
         helixGroup.add(label);
+
+        // REMOVED NODE 2 (Text side) per request
+
+        // 3. Create Connecting Line (Rung)
+        const points = [];
+        points.push(new THREE.Vector3(x1, y, z1));
+        points.push(new THREE.Vector3(x2, y, z2));
+        const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
+        const rung = new THREE.Line(lineGeo, rungMat);
+        helixGroup.add(rung);
     }
+
+    // Extra: Floating Debris (Tetrahedrons)
+    const debrisCount = 15;
+    const debrisGeo = new THREE.TetrahedronGeometry(0.1, 0);
+    const debrisMat = new THREE.MeshBasicMaterial({ color: 0x00f2ff, wireframe: true });
+    const debrisGroup = new THREE.Group();
+    helixGroup.add(debrisGroup);
+
+    for (let i = 0; i < debrisCount; i++) {
+        const d = new THREE.Mesh(debrisGeo, debrisMat);
+        d.position.set(
+            (Math.random() - 0.5) * 8,
+            (Math.random() - 0.5) * 12,
+            (Math.random() - 0.5) * 8
+        );
+        d.orderBy = Math.random(); // custom property for animation
+        debrisGroup.add(d);
+    }
+
+    // Extra: Floating Particles
+    const particleCount = 80;
+    const pGeo = new THREE.BufferGeometry();
+    const pPos = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount * 3; i++) {
+        pPos[i] = (Math.random() - 0.5) * 12; // Wider spread
+        // Concentrate some near center
+        if (Math.random() > 0.5) pPos[i] *= 0.5;
+    }
+    pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+    const pMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.04, transparent: true, opacity: 0.4 });
+    const particles = new THREE.Points(pGeo, pMat);
+    helixGroup.add(particles);
+
 
     // --- LIGHTING ---
     const cyanLight = new THREE.PointLight(0x00ffff, 2, 20);
@@ -357,30 +415,41 @@ const runVortex = () => {
     violetLight.position.set(-5, -5, 5);
     scene.add(violetLight);
 
+    // Dynamic Energy Light
+    const energyLight = new THREE.PointLight(0x00f2ff, 1.5, 8);
+    scene.add(energyLight);
+
     scene.add(new THREE.AmbientLight(0xffffff, 0.2));
 
     // --- ANIMATION ---
     const clock = new THREE.Clock();
-    let targetRotationY = 0;
-    const windowHalfX = window.innerWidth / 2;
-
-    document.addEventListener('mousemove', (event) => {
-        const mouseX = (event.clientX - windowHalfX) * 0.001;
-        targetRotationY = mouseX * 2;
-    });
+    // Removed mouse interaction for pure auto-spin
 
     const animate = () => {
         requestAnimationFrame(animate);
         const time = clock.getElapsedTime();
 
-        helixGroup.rotation.y += 0.003;
-        helixGroup.rotation.y += 0.05 * (targetRotationY - (helixGroup.rotation.y % 1)); // Gentle nudge
+        // Slow, constant auto-rotation
+        helixGroup.rotation.y += 0.002;
 
         helixGroup.position.y = Math.sin(time * 0.5) * 0.3;
 
+        // Move Energy Light up and down
+        energyLight.position.y = Math.sin(time) * 5;
+        energyLight.position.z = Math.cos(time * 0.5) * 2;
+
+        // Animate Debris
+        debrisGroup.rotation.y = -time * 0.1;
+        debrisGroup.children.forEach(d => {
+            d.rotation.x += 0.01;
+            d.rotation.y += 0.02;
+            d.position.y += Math.sin(time + d.orderBy * 10) * 0.01;
+        });
+
+        particles.rotation.y = -time * 0.1;
+
         helixGroup.children.forEach(child => {
-            // Make cubes slowly tumble
-            if (child.geometry.type === 'BoxGeometry') {
+            if (child.geometry && child.geometry.type === 'BoxGeometry') {
                 child.rotation.x += 0.01;
                 child.rotation.y += 0.01;
             }

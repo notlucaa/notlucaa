@@ -498,14 +498,7 @@ a {
 }
 
 .synergy-section::before {
-    content: '';
-    position: absolute;
-    top: -20%;
-    left: -10%;
-    width: 60%;
-    height: 140%;
-    background: radial-gradient(circle, rgba(0, 242, 255, 0.05) 0%, transparent 70%);
-    pointer-events: none;
+    display: none;
 }
 
 .synergy-content {
@@ -560,6 +553,9 @@ a {
     min-height: 500px;
     position: relative;
     z-index: 1;
+    /* Radial Mask for soft edges on all sides */
+    -webkit-mask-image: radial-gradient(closest-side, black 40%, transparent 100%);
+    mask-image: radial-gradient(closest-side, black 40%, transparent 100%);
 }
 
 .synergy-left {

@@ -6,7 +6,8 @@
     --text-light: #f4f4f4;
     --text-muted: rgba(255, 255, 255, 0.6);
 
-    --accent-designer: #d8b4fe;
+    --accent-designer: #d94bff;
+    /* Bright Neon Violet */
     /* Soft Purple for Visuals */
     --accent-copy: #00ffd5;
     /* Teal for Words */
@@ -707,10 +708,12 @@ a {
     font-family: var(--font-heading);
     font-size: 8rem;
     line-height: 1;
-    color: var(--accent-copy);
-    /* Blue/Teal */
-    opacity: 0.15;
-    /* Visible blue tint */
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    opacity: 0.25;
+    /* Slightly higher for gradient visibility */
     position: absolute;
     top: -1rem;
     right: -1rem;

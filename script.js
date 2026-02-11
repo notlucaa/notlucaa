@@ -576,3 +576,26 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
     runVortex();
 }
 
+/* --- PAGE TRANSITIONS --- */
+document.addEventListener('click', (e) => {
+    const link = e.target.closest('a');
+    if (!link) return;
+
+    const href = link.getAttribute('href');
+    // Check if internal link that requires transition
+    if (href &&
+        !href.startsWith('#') &&
+        !href.startsWith('mailto:') &&
+        !href.startsWith('tel:') &&
+        link.target !== '_blank' &&
+        !e.ctrlKey && !e.metaKey) {
+
+        e.preventDefault();
+        document.body.classList.add('page-exiting');
+
+        setTimeout(() => {
+            window.location.href = href;
+        }, 700); // Wait for CSS animation (0.6s)
+    }
+});
+

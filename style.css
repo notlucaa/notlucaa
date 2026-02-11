@@ -47,12 +47,58 @@
     /* Hide default cursor */
 }
 
+@keyframes pageFadeIn {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 99999;
+    pointer-events: none;
+    animation: pageFadeIn 1s ease-in-out forwards;
+}
+
+body.page-exiting::after {
+    animation: pageFadeOut 0.8s ease-in-out forwards;
+    visibility: visible;
+    opacity: 0;
+}
+
+@keyframes pageFadeOut {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
 body {
     background-color: var(--bg-dark);
     color: var(--text-light);
     font-family: var(--font-body);
     overflow-x: hidden;
     line-height: 1.6;
+    /* Removed opacity:0 as ::after handles the fade */
+}
+
+body.page-exiting {
+    /* animation: pageFadeOut 0.6s ease-in-out forwards; */
+    pointer-events: none;
 }
 
 /* Custom Scrollbar */
@@ -368,8 +414,9 @@ a {
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 150px;
-    background: linear-gradient(to bottom, transparent, #050505);
+    height: 250px;
+    /* Taller fade for smoother effect */
+    background: linear-gradient(to bottom, transparent, rgba(26, 22, 37, 0.8), var(--bg-dark));
     z-index: 10;
     pointer-events: none;
 }
@@ -1400,6 +1447,27 @@ textarea:focus {
 .btn-reset:hover {
     border-color: white;
     color: white;
+}
+
+/* Company Intro Transition */
+#company-intro {
+    background: #000;
+    position: relative;
+    border-bottom: none !important;
+    /* Remove line for smooth fade */
+    z-index: 5;
+}
+
+#company-intro::after {
+    content: '';
+    position: absolute;
+    bottom: -150px;
+    left: 0;
+    width: 100%;
+    height: 150px;
+    background: linear-gradient(to bottom, #000, rgba(0, 0, 0, 0));
+    pointer-events: none;
+    z-index: 6;
 }
 
 /* Animations */

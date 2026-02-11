@@ -94,51 +94,75 @@
             };
 
             return (
-                <div className="newsletter-container">
+                <div className="newsletter-wrapper" style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
                     {!isSubmitted ? (
-                        <div className="newsletter-card">
-                            <div className="newsletter-visual">
-                                <div className="abstract-orb"></div>
-                                <div className="visual-caption">
-                                    <span>Design & Words</span>
-                                    <p>The weekly synthesis.</p>
-                                </div>
-                            </div>
-                            <div className="newsletter-content">
-                                <div className="newsletter-header">
-                                    <span className="badge">Limited Access</span>
-                                    <h2>The Insight</h2>
-                                    <p>Rejoignez 2000+ créatifs. Apprenez à fusionner l'esthétique et la persuasion pour transformer votre business.</p>
-                                </div>
-                                <form className="newsletter-form" onSubmit={handleSubmit}>
-                                    <div className="input-wrapper">
-                                        <input
-                                            type="email"
-                                            placeholder="votre@email.com"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                            required
-                                        />
-                                        <div className="focus-border"></div>
-                                    </div>
-                                    <button type="submit" className={`submit-btn ${isLoading ? 'loading' : ''}`}>
-                                        {isLoading ? 'Processing...' : 'Join The Circle'}
-                                    </button>
-                                </form>
-                                <p className="privacy-note">Zéro spam. Uniquement de la valeur. Désinscription en 1 clic.</p>
-                            </div>
+                        <div className="glass-card" style={{
+                            background: 'rgba(255, 255, 255, 0.03)',
+                            backdropFilter: 'blur(20px)',
+                            border: '1px solid rgba(255, 255, 255, 0.08)',
+                            borderRadius: '20px',
+                            padding: '4rem 2rem',
+                            boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
+                        }}>
+                            <span style={{ background: 'rgba(255,255,255,0.1)', padding: '5px 12px', borderRadius: '20px', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '1px', display: 'inline-block', marginBottom: '1.5rem' }}>Weekly Synthesis</span>
+
+                            <h2 style={{ fontSize: '3.5rem', fontFamily: 'var(--font-heading)', marginBottom: '1rem', lineHeight: '1.1' }}>
+                                The Insight<span style={{ color: 'var(--accent-designer)' }}>.</span>
+                            </h2>
+
+                            <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '3rem', maxWidth: '400px', margin: '0 auto 3rem' }}>
+                                Rejoignez 2000+ créatifs. Fusionnez design et persuasion pour transformer votre business.
+                            </p>
+
+                            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '400px', margin: '0 auto' }}>
+                                <input
+                                    type="email"
+                                    placeholder="votre@email.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                    style={{
+                                        width: '100%',
+                                        padding: '1.2rem',
+                                        background: 'rgba(0,0,0,0.3)',
+                                        border: '1px solid rgba(255,255,255,0.1)',
+                                        borderRadius: '50px',
+                                        color: 'white',
+                                        fontSize: '1rem',
+                                        textAlign: 'center'
+                                    }}
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={isLoading}
+                                    style={{
+                                        width: '100%',
+                                        padding: '1.2rem',
+                                        background: 'white',
+                                        color: 'black',
+                                        border: 'none',
+                                        borderRadius: '50px',
+                                        fontWeight: '700',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '1px',
+                                        cursor: 'pointer',
+                                        transition: 'transform 0.2s',
+                                        opacity: isLoading ? 0.7 : 1
+                                    }}
+                                    onMouseOver={(e) => e.target.style.transform = 'scale(1.02)'}
+                                    onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
+                                >
+                                    {isLoading ? 'Processing...' : 'Join The Circle'}
+                                </button>
+                            </form>
+                            <p style={{ marginTop: '2rem', fontSize: '0.8rem', opacity: 0.5 }}>Zéro spam. Uniquement de la valeur.</p>
                         </div>
                     ) : (
-                        <div className="success-state">
-                            <div className="success-visual">
-                                <div className="check-ring"></div>
-                                <div className="check-mark">✓</div>
-                            </div>
-                            <div className="success-text">
-                                <h2>Bienvenue dans le cercle.</h2>
-                                <p>C'est le début de quelque chose de grand. Votre premier "Insight" arrive bientôt dans votre boîte mail.</p>
-                                <span className="success-footer">Vérifiez vos spams au cas où.</span>
-                            </div>
+                        <div className="success-state" style={{ padding: '5rem', textAlign: 'center' }}>
+                            <div style={{ fontSize: '4rem', color: 'var(--accent-designer)', marginBottom: '1rem' }}>✓</div>
+                            <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>Vous êtes inscrit.</h2>
+                            <p style={{ color: 'var(--text-muted)' }}>Surveillez votre boîte mail.</p>
+                            <button className="back-btn" onClick={() => window.location.href = 'index.html'} style={{ marginTop: '2rem', position: 'relative', bottom: 'auto', right: 'auto' }}>Retour à l'accueil</button>
                         </div>
                     )}
                 </div>

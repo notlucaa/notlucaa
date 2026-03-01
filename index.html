@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brotherflow — Votre Scale Partner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+
+    <!-- Three.js & Plugins for Rubik's Cube -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Bricolage+Grotesque:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .font-bricolage {
+            font-family: 'Bricolage Grotesque', sans-serif !important;
+        }
+
+        .grid-lines {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            max-width: 80rem;
+            margin: 0 auto;
+            pointer-events: none;
+            z-index: 5;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 1.5rem;
+            opacity: 0.15;
+        }
+
+        @media (min-width: 768px) {
+            .grid-lines {
+                padding: 0 3rem;
+            }
+        }
+
+        .grid-line {
+            width: 1px;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        @keyframes cinematicEntrance {
+            0% {
+                transform: scale(1.4);
+                filter: blur(20px) grayscale(100%);
+                opacity: 0;
+            }
+
+            20% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+                filter: blur(0px) grayscale(0%);
+                opacity: 1;
+            }
+        }
+
+        .animate-cinematic {
+            animation: cinematicEntrance 3.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        @keyframes slideUpFade {
+            0% {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-slide-up {
+            animation: slideUpFade 1s ease-out forwards;
+        }
+
+        @keyframes shimmerMove {
+            0% {
+                transform: translateX(-150%) skewX(-20deg);
+            }
+
+            100% {
+                transform: translateX(200%) skewX(-20deg);
+            }
+        }
+
+        .animate-shimmer-effect {
+            animation: shimmerMove 3s ease-in-out infinite;
+            animation-delay: 2s;
+        }
+
+        .bg-grain {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        @keyframes animationIn {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+                filter: blur(8px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+                filter: blur(0px);
+            }
+        }
+
+        .animate-on-scroll {
+            opacity: 0;
+            animation: animationIn 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            animation-play-state: paused;
+        }
+
+        .animate-on-scroll.animate {
+            animation-play-state: running;
+        }
+
+        .delay-100 {
+            animation-delay: 100ms;
+        }
+
+        .delay-200 {
+            animation-delay: 200ms;
+        }
+
+        .delay-300 {
+            animation-delay: 300ms;
+        }
+
+        .delay-400 {
+            animation-delay: 400ms;
+        }
+
+        .grid-dots-bg {
+            background-image: radial-gradient(#fff 1px, transparent 1px);
+            background-size: 32px 32px;
+            opacity: 0.1;
+        }
+
+        /* Rubik's Cube Canvas */
+        #canvas-container {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background-color: #09090b;
+            /* Match zinc-950/almost black */
+            overflow: hidden;
+            pointer-events: auto;
+            /* Enable interaction for orbit controls */
+        }
+
+        #canvas-container canvas {
+            display: block;
+            outline: none;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-neutral-950 text-neutral-50 w-full overflow-x-hidden selection:bg-purple-500/30 selection:text-white relative">
+    <div class="bg-grain"></div>
+
+    <!-- Navigation -->
+    <div
+        class="fixed flex animate-slide-up [animation-delay:0.5s] z-50 opacity-0 pr-4 pl-4 top-6 right-0 left-0 justify-center pointer-events-none">
+        <nav
+            class="pointer-events-auto flex transition-all duration-300 bg-neutral-900/60 w-full max-w-4xl border-white/10 border rounded-full pt-2 pr-6 pb-2 pl-2 shadow-2xl backdrop-blur-xl items-center justify-between">
+            <div class="flex items-center gap-3 pl-4">
+                <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-black">
+                    <iconify-icon icon="solar:infinity-bold-duotone" width="18"></iconify-icon>
+                </div>
+                <span class="font-bricolage text-lg tracking-tight font-medium">BROTHERFLOW</span>
+            </div>
+            <div class="hidden md:flex items-center gap-8 text-sm font-medium text-white/60">
+                <a href="#expertise" class="hover:text-purple-400 transition-colors">Notre Approche</a>
+                <a href="#services" class="hover:text-purple-400 transition-colors">Services</a>
+                <a href="#saas" class="hover:text-purple-400 transition-colors">SaaS Facturation</a>
+                <a href="#contact" class="hover:text-purple-400 transition-colors">S'associer</a>
+            </div>
+            <div class="flex items-center gap-2">
+                <button aria-label="Toggle menu"
+                    class="relative w-10 h-10 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors group">
+                    <iconify-icon icon="solar:menu-dots-square-linear" width="20"></iconify-icon>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Hero Section -->
+    <header
+        class="relative w-full overflow-hidden flex flex-col justify-end pb-12 md:pb-24 min-h-screen md:h-screen pointer-events-none">
+
+        <!-- 3D Canvas Background -->
+        <div id="canvas-container" class="absolute inset-0 z-0"></div>
+        <div
+            class="absolute inset-0 z-0 bg-gradient-to-t from-neutral-950 via-neutral-950/40 to-transparent pointer-events-none opacity-90">
+        </div>
+
+        <div
+            class="relative z-10 w-full max-w-[90rem] mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-12 gap-6 items-end pointer-events-none">
+            <!-- Left Column: Primary Headline -->
+            <div class="md:col-span-8 relative pointer-events-auto">
+                <div class="flex items-center gap-3 mb-6 animate-slide-up [animation-delay:1.2s] opacity-0">
+                    <span class="h-[1px] w-8 bg-white/60"></span>
+                    <span class="text-xs font-mono uppercase tracking-widest text-white/80">Design, Web &
+                        Copywriting</span>
+                </div>
+
+                <h1 class="font-bricolage text-white leading-[0.85] tracking-tight font-semibold">
+                    <span
+                        class="block text-[12vw] md:text-[7rem] lg:text-[8rem] animate-slide-up [animation-delay:1.4s] opacity-0 mix-blend-normal text-white drop-shadow-2xl">
+                        SCALE
+                    </span>
+                    <div
+                        class="flex items-baseline gap-4 md:gap-8 -mt-2 md:-mt-8 animate-slide-up [animation-delay:1.6s] opacity-0">
+                        <span
+                            class="text-[12vw] md:text-[7rem] lg:text-[8rem] font-serif italic font-thin text-white/60 opacity-50 blur-[1px]">
+                            &
+                        </span>
+                        <span class="text-[12vw] md:text-[7rem] lg:text-[8rem] text-white drop-shadow-2xl">
+                            AUTOMATE
+                        </span>
+                    </div>
+                </h1>
+            </div>
+
+            <!-- Right Column -->
+            <div class="md:col-span-4 flex flex-col justify-end pb-4 md:pb-8 pointer-events-auto">
+                <div
+                    class="overflow-hidden animate-slide-up [animation-delay:1.8s] md:p-8 bg-neutral-900/40 opacity-0 border border-white/10 rounded-3xl ring-white/5 ring-1 pt-6 pr-6 pb-6 pl-6 relative shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-xl transition-all hover:bg-neutral-900/60">
+                    <div
+                        class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/5 to-transparent z-0 pointer-events-none animate-shimmer-effect">
+                    </div>
+
+                    <div class="relative z-10">
+                        <div
+                            class="px-3 py-1.5 rounded-xl bg-white/5 backdrop-blur-xl border border-white/10 flex w-fit items-center gap-2 shadow-[0_4px_16px_rgba(0,0,0,0.37)] mb-4">
+                            <span
+                                class="w-1.5 h-1.5 rounded-full bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.8)] animate-pulse"></span>
+                            <span class="text-[9px] font-mono tracking-widest uppercase text-white/90">Scale
+                                Partners</span>
+                        </div>
+                        <p class="text-lg text-white font-light leading-relaxed mb-6 antialiased drop-shadow-md">
+                            Votre partenaire de croissance ultime. Nous ne créons pas seulement des sites web ; nous
+                            mettons en place des écosystèmes d'automatisation pour démultiplier votre force de vente.
+                        </p>
+
+                        <!-- Cube Controls Intergration -->
+                        <div class="mt-6 pt-6 border-t border-white/10">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-[10px] uppercase tracking-widest text-zinc-500 font-mono">Move <span
+                                        id="move-counter" class="text-white ml-2">0</span></span>
+                                <span id="toast-msg"
+                                    class="text-[10px] font-medium text-emerald-400 opacity-0 transition-opacity">Solved!</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="scrambleCube()"
+                                    class="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl py-2 text-[10px] uppercase tracking-widest font-medium text-white transition-all flex items-center justify-center gap-2">
+                                    <iconify-icon icon="lucide:shuffle"></iconify-icon> Scramble
+                                </button>
+                                <button onclick="solveCube()" id="btn-solve"
+                                    class="flex-1 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/20 rounded-xl py-2 text-[10px] uppercase tracking-widest font-medium transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <iconify-icon icon="lucide:sparkles"></iconify-icon> Solve
+                                </button>
+                                <button onclick="resetCamera()"
+                                    class="p-2 border border-white/10 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-all flex items-center justify-center"
+                                    aria-label="Reset View">
+                                    <iconify-icon icon="lucide:focus"></iconify-icon>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-4 mt-6">
+                            <a href="#services"
+                                class="group flex items-center justify-between w-full p-2.5 rounded-xl bg-purple-500/20 border border-purple-500/30 hover:bg-purple-500/40 transition-all duration-300">
+                                <span class="text-xs font-medium tracking-wide text-white ml-2">Découvrir nos
+                                    solutions</span>
+                                <div
+                                    class="w-7 h-7 rounded-sm bg-purple-500 flex items-center justify-center group-hover:scale-105 transition-transform">
+                                    <iconify-icon icon="solar:arrow-down-linear" class="text-white"
+                                        width="14"></iconify-icon>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="w-full bg-neutral-950 py-12 flex items-center justify-center relative z-20 overflow-hidden">
+        <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 h-px bg-white/10"></div>
+        <div
+            class="absolute inset-x-0 top-1/2 -translate-y-1/2 h-px bg-gradient-to-r from-transparent via-purple-500/40 to-transparent w-3/4 mx-auto">
+        </div>
+        <div
+            class="relative bg-neutral-950 p-3 border border-white/10 rounded-full flex items-center justify-center shadow-2xl">
+            <div class="w-2.5 h-2.5 bg-purple-500 rounded-full shadow-[0_0_15px_rgba(168,85,247,0.6)] animate-pulse">
+            </div>
+        </div>
+    </div>
+
+    <!-- Expertise Section -->
+    <section id="expertise"
+        class="relative py-24 md:py-32 bg-neutral-950 text-white overflow-hidden pointer-events-auto">
+        <div
+            class="absolute top-0 left-1/2 -translate-x-1/2 w-[80vw] h-[600px] bg-purple-900/20 rounded-full blur-[120px] pointer-events-none opacity-40 mix-blend-screen animate-pulse">
+        </div>
+
+        <div class="md:px-12 z-10 w-full max-w-7xl mr-auto ml-auto pr-6 pl-6 relative">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+                <div class="max-w-3xl relative animate-on-scroll">
+                    <div
+                        class="absolute -left-4 md:-left-8 top-1 bottom-1 w-1 bg-gradient-to-b from-purple-500 to-transparent opacity-50">
+                    </div>
+                    <div class="flex items-center gap-3 mb-4 text-purple-400">
+                        <span class="text-xs font-mono uppercase tracking-[0.2em] text-purple-400/80">Notre
+                            Approche</span>
+                    </div>
+                    <h2
+                        class="text-5xl md:text-8xl font-bricolage font-medium tracking-tighter text-white leading-[0.9]">
+                        Partenaire
+                        <span class="text-white/20 font-light">de Croissance.</span>
+                    </h2>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 h-auto transition-all duration-500">
+                <div
+                    class="group relative md:col-span-8 rounded-[2rem] overflow-hidden bg-neutral-900 border border-white/10 shadow-2xl p-8 hover:border-white/20 animate-on-scroll delay-200">
+                    <div class="absolute inset-0 z-0 bg-gradient-to-br from-neutral-900 to-neutral-950"></div>
+                    <div class="relative z-10 h-full flex flex-col justify-center">
+                        <span
+                            class="px-3 py-1 bg-white/10 inline-block w-max backdrop-blur border border-white/10 rounded-full text-[10px] uppercase tracking-widest font-mono text-white/80 mb-6">Scale
+                            Partner Concept</span>
+                        <h3 class="text-3xl md:text-5xl font-bricolage font-medium text-white mb-6 tracking-tight">De la
+                            Visibilité à l'Automatisation</h3>
+                        <p class="text-white/70 text-lg font-light leading-relaxed mb-8">
+                            En tant que duo d'experts, nous investissons d'abord dans votre présence en ligne : identité
+                            visuelle, site web performant, visibilité sociale (Instagram, TikTok, LinkedIn). Nous ne
+                            nous arrêtons pas là. Notre but est de devenir vos "Scale Partners" en automatisant vos
+                            process et en gérant vos campagnes publicitaires à long terme.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="md:col-span-4 flex flex-col gap-6">
+                    <div
+                        class="group relative flex-1 rounded-[2rem] p-8 overflow-hidden bg-neutral-900 border border-white/10 shadow-xl hover:border-white/30 transition-all duration-500 animate-on-scroll delay-300">
+                        <div class="absolute inset-0 z-0 bg-gradient-to-br from-purple-900/40 to-neutral-900"></div>
+                        <div class="relative z-10">
+                            <iconify-icon icon="solar:pen-new-square-linear" class="text-purple-400 mb-4"
+                                width="32"></iconify-icon>
+                            <h3 class="text-2xl font-bricolage font-medium text-white mb-2 tracking-tight">Copywriting
+                            </h3>
+                            <p class="text-white/60 text-sm font-light">Des mots pensés pour convertir. De vos
+                                publicités à vos e-mails de vente en passant par la structuration globale de votre
+                                communication.</p>
+                        </div>
+                    </div>
+
+                    <div
+                        class="group relative flex-1 rounded-[2rem] p-8 overflow-hidden bg-neutral-900 border border-white/10 shadow-xl hover:border-white/30 transition-all duration-500 animate-on-scroll delay-400">
+                        <div class="absolute inset-0 z-0 bg-gradient-to-br from-blue-900/40 to-neutral-900"></div>
+                        <div class="relative z-10">
+                            <iconify-icon icon="solar:laptop-minimalistic-linear" class="text-blue-400 mb-4"
+                                width="32"></iconify-icon>
+                            <h3 class="text-2xl font-bricolage font-medium text-white mb-2 tracking-tight">Web &
+                                Sécurité</h3>
+                            <p class="text-white/60 text-sm font-light">Conception web moderne, hébergement optimisé, et
+                                architecture sécurisée avec mise à jour continue.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="py-24 bg-neutral-900 text-white relative overflow-hidden pointer-events-auto" id="services">
+        <div class="absolute inset-0 grid-dots-bg"></div>
+        <div class="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="w-8 h-[1px] bg-purple-500"></span>
+                        <span class="text-purple-500 text-xs font-mono uppercase tracking-widest">Écosystème</span>
+                    </div>
+                    <h2 class="text-4xl md:text-6xl font-bricolage font-medium mb-6 leading-tight animate-on-scroll">
+                        Services
+                        <br>
+                        <span class="text-white/40">Sur Mesure</span>
+                    </h2>
+                    <p class="text-white/60 text-lg mb-8 leading-relaxed font-light animate-on-scroll delay-100">
+                        Chaque étape de notre approche a un but précis : propulser vos ventes grâce à l'automatisation
+                        et l'image de marque.
+                    </p>
+
+                    <div class="space-y-6">
+                        <div class="flex gap-4 group cursor-pointer animate-on-scroll delay-200">
+                            <div
+                                class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 group-hover:bg-purple-500/10 transition-all duration-300">
+                                <iconify-icon icon="solar:users-group-rounded-linear" width="28"
+                                    class="text-white group-hover:text-purple-400"></iconify-icon>
+                            </div>
+                            <div class="pt-1">
+                                <h4
+                                    class="text-2xl font-medium mb-1 font-bricolage group-hover:text-purple-300 transition-colors">
+                                    Système de Base de Données</h4>
+                                <p class="text-sm text-white/50 leading-relaxed">Création de bases de données internes
+                                    pour suivre vos clients, vos ventes et vos produits avec fiabilité.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 group cursor-pointer animate-on-scroll delay-300">
+                            <div
+                                class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 group-hover:bg-blue-500/10 transition-all duration-300">
+                                <iconify-icon icon="solar:rocket-linear" width="28"
+                                    class="text-white group-hover:text-blue-400"></iconify-icon>
+                            </div>
+                            <div class="pt-1">
+                                <h4
+                                    class="text-2xl font-medium mb-1 font-bricolage group-hover:text-blue-300 transition-colors">
+                                    Mise à l'échelle (Scale)</h4>
+                                <p class="text-sm text-white/50 leading-relaxed">Publicité ciblée, entonnoirs de
+                                    conversion fluides, et des process taillés pour exploser vos résultats.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="relative lg:h-[600px] w-full rounded-[2.5rem] overflow-hidden border border-white/10 group animate-on-scroll h-[300px] md:h-[500px] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2000&auto=format&fit=crop"
+                        class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 opacity-50 mix-blend-screen"
+                        alt="Data Analysis and Scale" title="Data Analysis and Scale">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-neutral-900 via-transparent to-neutral-900/10 mix-blend-multiply">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SaaS Section -->
+    <section id="saas"
+        class="py-24 md:py-32 bg-neutral-950 text-white relative overflow-hidden border-t border-white/10 pointer-events-auto">
+        <div class="absolute inset-0 bg-gradient-to-b from-purple-900/10 to-transparent opacity-50"></div>
+        <div class="max-w-5xl mx-auto px-6 relative z-10 text-center">
+            <span
+                class="inline-block px-4 py-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-300 text-xs uppercase tracking-widest font-mono mb-6">Produit
+                Interne (SaaS)</span>
+            <h2 class="text-4xl md:text-6xl font-bricolage font-medium mb-6">Automatisation des Factures</h2>
+            <p class="text-lg text-white/60 mb-12 max-w-2xl mx-auto font-light">Une solution logicielle puissante
+                incluse dans nos partenariats, ou disponible séparément. Fini les paiements en retard et le suivi
+                administratif chronophage.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                <div class="p-6 rounded-2xl bg-white/5 border border-white/10">
+                    <iconify-icon icon="solar:document-text-linear" class="text-3xl text-white mb-4"></iconify-icon>
+                    <h4 class="text-xl font-medium mb-2">Centralisation</h4>
+                    <p class="text-white/50 text-sm">Répertorie tous les éléments capitaux de la facture : montant,
+                        dates de signature et butoires, noms de l'entreprise et du client.</p>
+                </div>
+                <div class="p-6 rounded-2xl bg-white/5 border border-white/10">
+                    <iconify-icon icon="solar:letter-opened-linear" class="text-3xl text-white mb-4"></iconify-icon>
+                    <h4 class="text-xl font-medium mb-2">Relance Automatisée</h4>
+                    <p class="text-white/50 text-sm">Envoie automatiquement des e-mails en cas de retard de paiement,
+                        éliminant ainsi les trous de trésorerie.</p>
+                </div>
+                <div class="p-6 rounded-2xl bg-white/5 border border-white/10">
+                    <iconify-icon icon="solar:chart-square-linear" class="text-3xl text-white mb-4"></iconify-icon>
+                    <h4 class="text-xl font-medium mb-2">Solution Unique</h4>
+                    <p class="text-white/50 text-sm">Un SaaS mis à disposition de nos partenaires, mais également
+                        disponible en formule de location individuelle pour tous vos clients.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section
+        class="py-32 bg-neutral-950 relative border-t border-white/5 text-center overflow-hidden pointer-events-auto"
+        id="contact">
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] max-w-[800px] max-h-[800px] bg-purple-600/10 rounded-full blur-[100px] pointer-events-none opacity-50 mix-blend-screen">
+        </div>
+        <div class="absolute inset-0 z-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+
+        <div class="relative z-10 max-w-2xl mx-auto px-6">
+            <div
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8 backdrop-blur-md">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="text-xs font-mono tracking-widest uppercase text-white/70">Place au Partenariat</span>
+            </div>
+
+            <h2 class="text-5xl md:text-8xl font-bricolage font-medium text-white mb-6 tracking-tighter">Évoluons
+                Ensemble.</h2>
+            <p class="text-white/50 text-lg mb-12 font-light max-w-lg mx-auto leading-relaxed">Associez-vous à Brother
+                Flow. De l'identité web à la conversion, confiez-nous le scale de votre business.</p>
+
+            <button
+                class="px-8 py-4 bg-white text-black rounded-full font-medium hover:bg-neutral-200 transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(255,255,255,0.3)] flex items-center gap-3 mx-auto group">
+                Contacter l'équipe
+                <div
+                    class="w-6 h-6 rounded-full bg-black/10 flex items-center justify-center group-hover:bg-black/20 transition-colors">
+                    <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
+                </div>
+            </button>
+        </div>
+    </section>
+
+    <footer class="bg-neutral-950 border-white/10 border-t pt-20 pb-10 pointer-events-auto relative overflow-hidden">
+        <div class="absolute inset-0 bg-grain opacity-50"></div>
+        <div class="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
+                <!-- Brand Column -->
+                <div class="md:col-span-5 flex flex-col items-start">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black">
+                            <iconify-icon icon="solar:infinity-bold-duotone" width="24"></iconify-icon>
+                        </div>
+                        <span class="font-bricolage text-2xl tracking-tight font-medium text-white">BROTHERFLOW</span>
+                    </div>
+                    <p class="text-white/60 text-sm leading-relaxed max-w-sm mb-8 font-light">
+                        Votre partenaire d'automatisation et de croissance. Nous associons design haut de gamme,
+                        copywriting percutant et infrastructures sécurisées pour scaler votre impact.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="#" aria-label="Instagram"
+                            class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:bg-purple-500/20 hover:text-purple-400 hover:border-purple-500/30 transition-all">
+                            <iconify-icon icon="mdi:instagram" width="20"></iconify-icon>
+                        </a>
+                        <a href="#" aria-label="LinkedIn"
+                            class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:bg-purple-500/20 hover:text-purple-400 hover:border-purple-500/30 transition-all">
+                            <iconify-icon icon="mdi:linkedin" width="20"></iconify-icon>
+                        </a>
+                        <a href="#" aria-label="TikTok"
+                            class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:bg-purple-500/20 hover:text-purple-400 hover:border-purple-500/30 transition-all">
+                            <iconify-icon icon="ic:baseline-tiktok" width="20"></iconify-icon>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Links Column 1 -->
+                <div class="md:col-span-2 md:col-start-7">
+                    <h4 class="text-white font-medium mb-6 uppercase tracking-widest text-xs font-mono">Expertise</h4>
+                    <ul class="space-y-4 text-sm font-light text-white/60">
+                        <li><a href="#" class="hover:text-purple-400 transition-colors block">Copywriting</a></li>
+                        <li><a href="#" class="hover:text-purple-400 transition-colors block">Web Design</a></li>
+                        <li><a href="#" class="hover:text-purple-400 transition-colors block">Sécurité & Hébergement</a>
+                        </li>
+                        <li><a href="#" class="hover:text-purple-400 transition-colors block">Bases de Données</a></li>
+                    </ul>
+                </div>
+
+                <!-- Links Column 2 -->
+                <div class="md:col-span-2">
+                    <h4 class="text-white font-medium mb-6 uppercase tracking-widest text-xs font-mono">Écosystème</h4>
+                    <ul class="space-y-4 text-sm font-light text-white/60">
+                        <li><a href="#saas"
+                                class="hover:text-purple-400 transition-colors block flexitems-center gap-2">SaaS
+                                Facturation <span
+                                    class="px-1.5 py-0.5 rounded-md bg-purple-500/20 text-purple-300 text-[9px] font-mono tracking-wider ml-1">NEW</span></a>
+                        </li>
+                        <li><a href="#services" class="hover:text-purple-400 transition-colors block">Scale & Pub</a>
+                        </li>
+                        <li><a href="#contact" class="hover:text-purple-400 transition-colors block">Partenariat</a>
+                        </li>
+                        <li><a href="#" class="hover:text-purple-400 transition-colors block">Cas Clients</a></li>
+                    </ul>
+                </div>
+
+                <!-- Legal/Contact Column -->
+                <div class="md:col-span-2">
+                    <h4 class="text-white font-medium mb-6 uppercase tracking-widest text-xs font-mono">Contact</h4>
+                    <ul class="space-y-4 text-sm font-light text-white/60">
+                        <li><a href="mailto:contact@brotherflow.fr"
+                                class="hover:text-white transition-colors block">contact@brotherflow.fr</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors block">Mentions Légales</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors block">Politique de
+                                Confidentialité</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bottom Bar -->
+            <div class="pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-white/40 text-xs font-mono">&copy; 2026 Brotherflow. Tous droits réservés.</p>
+                <div class="flex items-center gap-2 text-white/40 text-xs font-mono">
+                    <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                    Systèmes Opérationnels
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Rubik's Cube 3D Script -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: "0px 0px -5% 0px" });
+
+            document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+
+            // Initialisation of the Rubik's Cube
+            initRubiksCube();
+        });
+
+        // Variables Globales Rubiks Cube
+        const SCENE_BG = 0x09090b; // Match Hero Background
+        const CUBE_SIZE = 1;
+        const SPACING = 0.05;
+        const TOTAL_SIZE = CUBE_SIZE + SPACING;
+
+        // CUBE EN NOIR (Black Monochromatic Theme base for Brotherflow)
+        const COLORS = {
+            base: 0x010101, // Deep internal
+            R: 0x1a1a1a,    // Slightly distinct shades of very dark grey
+            L: 0x121212,
+            U: 0x222222,
+            D: 0x0f0f0f,
+            F: 0x181818,
+            B: 0x202020
+        };
+
+        let scene, camera, renderer, controls;
+        let cubes = [];
+        let isAnimating = false;
+        let moveHistory = [];
+
+        const pivot = new THREE.Object3D();
+        const moveQueue = [];
+        let animationSpeed = 300;
+
+        function initRubiksCube() {
+            const container = document.getElementById('canvas-container');
+            if (!container) return;
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(SCENE_BG);
+            scene.fog = new THREE.FogExp2(SCENE_BG, 0.035);
+
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.set(6, 4, 6);
+            camera.lookAt(0, 0, 0);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.physicallyCorrectLights = true;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.0;
+            container.appendChild(renderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 2);
+            dirLight.position.set(5, 12, 8);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 2048;
+            dirLight.shadow.mapSize.height = 2048;
+            dirLight.shadow.bias = -0.0001;
+            scene.add(dirLight);
+
+            // Adding a purple rim light matching Brotherflow brand
+            const rimLight = new THREE.SpotLight(0xa855f7, 5);
+            rimLight.position.set(-10, 5, -5);
+            rimLight.lookAt(0, 0, 0);
+            scene.add(rimLight);
+
+            const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            fillLight.position.set(-10, -8, 5);
+            scene.add(fillLight);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.enablePan = false;
+            // Prevent zooming so it doesn't scroll hijack too badly
+            controls.enableZoom = false;
+            controls.minDistance = 5;
+            controls.maxDistance = 20;
+
+            createRubiksCube();
+            scene.add(pivot);
+
+            window.addEventListener('resize', onWindowResizeCube);
+
+            setTimeout(() => {
+                scrambleCube(3); // Small initial scramble for looks
+            }, 1000);
+
+            animateCube();
+        }
+
+        function createPlasticNoiseTexture() {
+            const size = 512;
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#808080';
+            ctx.fillRect(0, 0, size, size);
+
+            const imageData = ctx.getImageData(0, 0, size, size);
+            const data = imageData.data;
+
+            for (let i = 0; i < data.length; i += 4) {
+                const grain = (Math.random() - 0.5) * 20;
+                data[i] = data[i] + grain;
+                data[i + 1] = data[i + 1] + grain;
+                data[i + 2] = data[i + 2] + grain;
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(2, 2);
+
+            return texture;
+        }
+
+        function createRubiksCube() {
+            const geometry = new THREE.BoxGeometry(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE);
+            const plasticTexture = createPlasticNoiseTexture();
+
+            const plasticProps = {
+                roughness: 0.65,
+                metalness: 0.0,
+                clearcoat: 1.0,
+                clearcoatRoughness: 0.15,
+                reflectivity: 0.5,
+                bumpMap: plasticTexture,
+                bumpScale: 0.008
+            };
+
+            for (let x = -1; x <= 1; x++) {
+                for (let y = -1; y <= 1; y++) {
+                    for (let z = -1; z <= 1; z++) {
+
+                        const materials = [
+                            new THREE.MeshPhysicalMaterial({ ...plasticProps, color: x === 1 ? COLORS.R : COLORS.base }),
+                            new THREE.MeshPhysicalMaterial({ ...plasticProps, color: x === -1 ? COLORS.L : COLORS.base }),
+                            new THREE.MeshPhysicalMaterial({ ...plasticProps, color: y === 1 ? COLORS.U : COLORS.base }),
+                            new THREE.MeshPhysicalMaterial({ ...plasticProps, color: y === -1 ? COLORS.D : COLORS.base }),
+                            new THREE.MeshPhysicalMaterial({ ...plasticProps, color: z === 1 ? COLORS.F : COLORS.base }),
+                            new THREE.MeshPhysicalMaterial({ ...plasticProps, color: z === -1 ? COLORS.B : COLORS.base }),
+                        ];
+
+                        const cube = new THREE.Mesh(geometry, materials);
+
+                        cube.position.set(x * TOTAL_SIZE, y * TOTAL_SIZE, z * TOTAL_SIZE);
+                        cube.castShadow = true;
+                        cube.receiveShadow = true;
+
+                        cube.userData = { x, y, z };
+
+                        scene.add(cube);
+                        cubes.push(cube);
+                    }
+                }
+            }
+        }
+
+        function rotateLayer(axis, index, dir, duration = 300, isSolving = false) {
+            if (isAnimating && duration > 0) return;
+            isAnimating = true;
+
+            const activeCubes = cubes.filter(c => Math.abs(c.position[axis] - (index * TOTAL_SIZE)) < 0.1);
+
+            pivot.rotation.set(0, 0, 0);
+            pivot.position.set(0, 0, 0);
+
+            activeCubes.forEach(cube => {
+                pivot.attach(cube);
+            });
+
+            const targetRotation = { value: 0 };
+            const finalRotation = (Math.PI / 2) * dir * -1;
+
+            const tween = new TWEEN.Tween(targetRotation)
+                .to({ value: finalRotation }, duration)
+                .easing(TWEEN.Easing.Quadratic.InOut)
+                .onUpdate(() => {
+                    pivot.rotation[axis] = targetRotation.value;
+                })
+                .onComplete(() => {
+                    pivot.updateMatrixWorld();
+                    activeCubes.forEach(cube => {
+                        scene.attach(cube);
+                        cube.position.x = Math.round(cube.position.x / TOTAL_SIZE) * TOTAL_SIZE;
+                        cube.position.y = Math.round(cube.position.y / TOTAL_SIZE) * TOTAL_SIZE;
+                        cube.position.z = Math.round(cube.position.z / TOTAL_SIZE) * TOTAL_SIZE;
+
+                        cube.rotation.x = Math.round(cube.rotation.x / (Math.PI / 2)) * (Math.PI / 2);
+                        cube.rotation.y = Math.round(cube.rotation.y / (Math.PI / 2)) * (Math.PI / 2);
+                        cube.rotation.z = Math.round(cube.rotation.z / (Math.PI / 2)) * (Math.PI / 2);
+                        cube.updateMatrix();
+                    });
+
+                    pivot.rotation.set(0, 0, 0);
+                    isAnimating = false;
+
+                    if (!isSolving) {
+                        moveHistory.push({ axis, index, dir });
+                        updateUI();
+                    }
+
+                    if (moveQueue.length > 0) {
+                        const nextMove = moveQueue.shift();
+                        rotateLayer(nextMove.axis, nextMove.index, nextMove.dir, nextMove.duration, nextMove.isSolving);
+                    } else if (isSolving && moveHistory.length === 0) {
+                        showToast();
+                        updateUI();
+                    }
+                });
+
+            tween.start();
+        }
+
+        function scrambleCube(count = 15) {
+            if (isAnimating) return;
+            for (let i = 0; i < count; i++) {
+                const axes = ['x', 'y', 'z'];
+                const axis = axes[Math.floor(Math.random() * axes.length)];
+                const index = Math.floor(Math.random() * 3) - 1;
+                const dir = Math.random() > 0.5 ? 1 : -1;
+                moveQueue.push({ axis, index, dir, duration: 100, isSolving: false });
+            }
+            processQueue();
+        }
+
+        function solveCube() {
+            if (isAnimating || moveHistory.length === 0) return;
+            const history = [...moveHistory];
+            moveHistory = [];
+            updateUI();
+            history.reverse().forEach(move => {
+                moveQueue.push({
+                    axis: move.axis,
+                    index: move.index,
+                    dir: move.dir * -1,
+                    duration: 150,
+                    isSolving: true
+                });
+            });
+            processQueue();
+        }
+
+        function processQueue() {
+            if (!isAnimating && moveQueue.length > 0) {
+                const move = moveQueue.shift();
+                rotateLayer(move.axis, move.index, move.dir, move.duration, move.isSolving);
+            }
+        }
+
+        function resetCamera() {
+            new TWEEN.Tween(camera.position)
+                .to({ x: 6, y: 4, z: 6 }, 1000)
+                .easing(TWEEN.Easing.Cubic.Out)
+                .start();
+
+            new TWEEN.Tween(controls.target)
+                .to({ x: 0, y: 0, z: 0 }, 1000)
+                .easing(TWEEN.Easing.Cubic.Out)
+                .start();
+        }
+
+        function updateUI() {
+            const moveCounterEl = document.getElementById('move-counter');
+            const btnSolve = document.getElementById('btn-solve');
+            if (moveCounterEl) moveCounterEl.innerText = moveHistory.length;
+
+            if (btnSolve) {
+                if (moveHistory.length === 0) {
+                    btnSolve.disabled = true;
+                } else {
+                    btnSolve.disabled = false;
+                }
+            }
+        }
+
+        function showToast() {
+            const toastMsg = document.getElementById('toast-msg');
+            if (toastMsg) {
+                toastMsg.style.opacity = '1';
+                setTimeout(() => {
+                    toastMsg.style.opacity = '0';
+                }, 3000);
+            }
+        }
+
+        function onWindowResizeCube() {
+            if (camera && renderer) {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+        }
+
+        function animateCube(time) {
+            requestAnimationFrame(animateCube);
+            TWEEN.update(time);
+            if (controls) controls.update();
+            if (renderer && scene && camera) renderer.render(scene, camera);
+        }
+
+        // Expose functions globally for the onclick attributes
+        window.scrambleCube = scrambleCube;
+        window.solveCube = solveCube;
+        window.resetCamera = resetCamera;
+    </script>
+</body>
+
+</html>

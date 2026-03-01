@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Architect | Design Philosophy</title>
+    <meta name="description" content="Pixel Perfection. User Intuition. The visual world of B&F.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Supabase CDN (Required for script.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* Specific page adjustments */
+        body {
+            overflow-y: auto;
+        }
+
+        .page-container {
+            padding-top: 0;
+        }
+    </style>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+</head>
+
+<body>
+    <!-- Ambient Background -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Custom Cursor -->
+    <div class="cursor-dot" data-cursor-dot></div>
+    <div class="cursor-outline" data-cursor-outline></div>
+
+    <main class="page-container">
+        <!-- Hero Profile Section -->
+        <section class="synergy-section architect-hero">
+            <div class="synergy-content">
+                <div class="synergy-left">
+                    <span class="section-tag reveal-on-scroll">The Visionary</span>
+                    <h1 class="synergy-title reveal-on-scroll reveal-delay-1">Designing<br><span
+                            class="accent-text-designer">The Future</span></h1>
+                    <p class="synergy-lead reveal-on-scroll reveal-delay-2">
+                        Precision meets passion. I craft digital experiences that blur the line between utility and art.
+                        Every pixel has a purpose, every interaction tells a story.
+                    </p>
+                </div>
+                <div class="synergy-visual reveal-on-scroll reveal-delay-3">
+                    <div class="profile-frame profile-card">
+                        <div class="profile-glow">
+                        </div>
+                        <div class="profile-bg-symbol-container">
+                            <h2 class="profile-bg-symbol">&</h2>
+                        </div>
+                        <div class="profile-info">
+                            <p class="profile-label">Architect</p>
+                            <p class="profile-sub">Lead Designer</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Philosophy Grid -->
+        <section class="panel panel-spacing">
+            <div class="container">
+                <h2 class="synergy-title reveal-on-scroll section-title-large">Core
+                    <span>Philosophy</span>
+                </h2>
+                <div class="showcase-grid">
+                    <div class="method-card reveal-on-scroll reveal-delay-1">
+                        <div class="card-num">01</div>
+                        <h3 class="accent-text-designer">Aesthetic</h3>
+                        <p>Beauty is a function. We create visuals that captivate and communicate instantly.</p>
+                    </div>
+                    <div class="method-card reveal-on-scroll reveal-delay-2">
+                        <div class="card-num">02</div>
+                        <h3 class="accent-text-designer">Function</h3>
+                        <p>Performance is paramount. Fast, accessible, and intuitive interactions that feel natural.</p>
+                    </div>
+                    <div class="method-card reveal-on-scroll reveal-delay-3">
+                        <div class="card-num">03</div>
+                        <h3 class="accent-text-designer">Emotion</h3>
+                        <p>Design that connects. We build interfaces that users feel, not just use.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Back Button -->
+    <a href="index.html" class="back-btn">
+        <span>Back</span>
+    </a>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

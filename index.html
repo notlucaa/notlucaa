@@ -237,7 +237,7 @@
                 <h1 class="font-bricolage text-white leading-[0.85] tracking-tight font-semibold">
                     <span
                         class="block text-[12vw] md:text-[7rem] lg:text-[8rem] animate-slide-up [animation-delay:1.4s] opacity-0 mix-blend-normal text-white drop-shadow-2xl">
-                        SCALE
+                        WEB
                     </span>
                     <div
                         class="flex items-baseline gap-4 md:gap-8 -mt-2 md:-mt-8 animate-slide-up [animation-delay:1.6s] opacity-0">
@@ -246,7 +246,7 @@
                             &
                         </span>
                         <span class="text-[12vw] md:text-[7rem] lg:text-[8rem] text-white drop-shadow-2xl">
-                            AUTOMATE
+                            COPY
                         </span>
                     </div>
                 </h1>
@@ -265,12 +265,13 @@
                             class="px-3 py-1.5 rounded-xl bg-white/5 backdrop-blur-xl border border-white/10 flex w-fit items-center gap-2 shadow-[0_4px_16px_rgba(0,0,0,0.37)] mb-4">
                             <span
                                 class="w-1.5 h-1.5 rounded-full bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.8)] animate-pulse"></span>
-                            <span class="text-[9px] font-mono tracking-widest uppercase text-white/90">Scale
-                                Partners</span>
+                            <span class="text-[9px] font-mono tracking-widest uppercase text-white/90">Web &
+                                Copywriting</span>
                         </div>
                         <p class="text-lg text-white font-light leading-relaxed mb-6 antialiased drop-shadow-md">
-                            Votre partenaire de croissance ultime. Nous ne créons pas seulement des sites web ; nous
-                            mettons en place des écosystèmes d'automatisation pour démultiplier votre force de vente.
+                            Experts en création de sites premiums et rédaction persuasive. Au-delà d'une identité
+                            digitale forte, nous pouvons également devenir vos <strong>Scale Partners</strong> pour
+                            automatiser vos process et démultiplier vos ventes.
                         </p>
 
                         <!-- Cube Controls Intergration -->
@@ -346,9 +347,9 @@
                             Approche</span>
                     </div>
                     <h2
-                        class="text-5xl md:text-8xl font-bricolage font-medium tracking-tighter text-white leading-[0.9]">
-                        Partenaire
-                        <span class="text-white/20 font-light">de Croissance.</span>
+                        class="text-4xl md:text-7xl font-bricolage font-medium tracking-tighter text-white leading-[0.9]">
+                        Design Web
+                        <span class="text-white/20 font-light">& Copywriting.</span>
                     </h2>
                 </div>
             </div>
@@ -359,15 +360,15 @@
                     <div class="absolute inset-0 z-0 bg-gradient-to-br from-neutral-900 to-neutral-950"></div>
                     <div class="relative z-10 h-full flex flex-col justify-center">
                         <span
-                            class="px-3 py-1 bg-white/10 inline-block w-max backdrop-blur border border-white/10 rounded-full text-[10px] uppercase tracking-widest font-mono text-white/80 mb-6">Scale
-                            Partner Concept</span>
-                        <h3 class="text-3xl md:text-5xl font-bricolage font-medium text-white mb-6 tracking-tight">De la
-                            Visibilité à l'Automatisation</h3>
+                            class="px-3 py-1 bg-white/10 inline-block w-max backdrop-blur border border-white/10 rounded-full text-[10px] uppercase tracking-widest font-mono text-white/80 mb-6">Expertise
+                            Complète</span>
+                        <h3 class="text-3xl md:text-5xl font-bricolage font-medium text-white mb-6 tracking-tight">Des
+                            sites qui marquent, des mots qui vendent.</h3>
                         <p class="text-white/70 text-lg font-light leading-relaxed mb-8">
-                            En tant que duo d'experts, nous investissons d'abord dans votre présence en ligne : identité
-                            visuelle, site web performant, visibilité sociale (Instagram, TikTok, LinkedIn). Nous ne
-                            nous arrêtons pas là. Notre but est de devenir vos "Scale Partners" en automatisant vos
-                            process et en gérant vos campagnes publicitaires à long terme.
+                            En tant que duo d'experts, notre cœur de métier est de forger votre présence en ligne avec
+                            un design web percutant et un copywriting persuasif (pages de vente, e-mails, publicités).
+                            Une fois votre socle digital optimisé, nous vous offrons la possibilité d'aller plus loin en
+                            tant que "Scale Partners", en automatisant vos process publicitaires sur le long terme.
                         </p>
                     </div>
                 </div>
@@ -524,7 +525,8 @@
             <h2 class="text-5xl md:text-8xl font-bricolage font-medium text-white mb-6 tracking-tighter">Évoluons
                 Ensemble.</h2>
             <p class="text-white/50 text-lg mb-12 font-light max-w-lg mx-auto leading-relaxed">Associez-vous à Brother
-                Flow. De l'identité web à la conversion, confiez-nous le scale de votre business.</p>
+                Flow. De la création de votre site web à la rédaction de textes qui vendent, nous posons un socle
+                digital inégalé avant même de parler de scale.</p>
 
             <button
                 class="px-8 py-4 bg-white text-black rounded-full font-medium hover:bg-neutral-200 transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(255,255,255,0.3)] flex items-center gap-3 mx-auto group">
@@ -725,6 +727,13 @@
 
             setTimeout(() => {
                 scrambleCube(3); // Small initial scramble for looks
+
+                // Add an auto-play interval after the first initial scramble
+                setInterval(() => {
+                    if (!isAnimating && moveQueue.length === 0) {
+                        scrambleCube(1);
+                    }
+                }, 5000);
             }, 1000);
 
             animateCube();

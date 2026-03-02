@@ -204,8 +204,8 @@
     <div class="bg-grain"></div>
 
     <!-- Navigation -->
-    <div
-        class="fixed flex animate-slide-up [animation-delay:0.5s] z-50 opacity-0 pr-4 pl-4 top-6 right-0 left-0 justify-center pointer-events-none">
+    <div id="main-nav"
+        class="fixed flex transition-transform duration-300 animate-slide-up [animation-delay:0.5s] z-50 opacity-0 pr-4 pl-4 top-6 right-0 left-0 justify-center pointer-events-none">
         <nav
             class="pointer-events-auto flex transition-all duration-300 bg-neutral-900/60 w-full max-w-4xl border-white/10 border rounded-full pt-2 pr-6 pb-2 pl-2 shadow-2xl backdrop-blur-xl items-center justify-between">
             <div class="flex items-center gap-3 pl-4">
@@ -270,7 +270,7 @@
             <!-- Right Column -->
             <div class="md:col-span-4 flex flex-col justify-end pb-4 md:pb-8 pointer-events-auto mt-8 md:mt-0">
                 <div
-                    class="overflow-hidden animate-slide-up [animation-delay:1.8s] md:p-8 bg-neutral-900/40 opacity-0 border border-white/10 rounded-3xl ring-white/5 ring-1 pt-6 pr-6 pb-6 pl-6 relative shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-xl transition-all hover:bg-neutral-900/60">
+                    class="overflow-hidden animate-slide-up [animation-delay:1.8s] p-4 md:p-8 bg-neutral-900/10 md:bg-neutral-900/40 opacity-0 border border-white/5 md:border-white/10 rounded-3xl ring-0 md:ring-white/5 md:ring-1 relative shadow-none md:shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-sm md:backdrop-blur-xl transition-all hover:bg-neutral-900/20 md:hover:bg-neutral-900/60">
                     <div
                         class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/5 to-transparent z-0 pointer-events-none animate-shimmer-effect">
                     </div>
@@ -691,6 +691,19 @@
 
             // Initialisation of the Rubik's Cube
             initRubiksCube();
+
+            // Hide Navbar on Scroll Down
+            let lastScroll = 0;
+            const navbar = document.getElementById('main-nav');
+            window.addEventListener('scroll', () => {
+                const currentScroll = window.scrollY;
+                if (currentScroll > lastScroll && currentScroll > 100) {
+                    navbar.style.transform = 'translateY(-150%)';
+                } else {
+                    navbar.style.transform = 'translateY(0)';
+                }
+                lastScroll = currentScroll;
+            });
         });
 
         // Variables Globales Rubiks Cube
@@ -768,6 +781,9 @@
             controls.enablePan = false;
             // Prevent zooming so it doesn't scroll hijack too badly
             controls.enableZoom = false;
+            if (window.innerWidth <= 768) {
+                controls.enabled = false; // Disable orbit controls on mobile to prevent scroll block
+            }
             controls.minDistance = 5;
             controls.maxDistance = 20;
 

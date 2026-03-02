@@ -221,12 +221,34 @@
                 <a href="#contact" class="hover:text-purple-400 transition-colors">S'associer</a>
             </div>
             <div class="flex items-center gap-2">
-                <button aria-label="Toggle menu"
-                    class="relative w-10 h-10 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors group">
+                <button aria-label="Toggle menu" id="open-menu-btn"
+                    class="relative w-10 h-10 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 bg-white/5 transition-colors group">
                     <iconify-icon icon="solar:menu-dots-square-linear" width="20"></iconify-icon>
                 </button>
             </div>
         </nav>
+    </div>
+
+    <!-- Fullscreen Menu Overlay -->
+    <div id="mobile-menu"
+        class="fixed inset-0 z-[60] bg-neutral-950/95 backdrop-blur-2xl opacity-0 pointer-events-none transition-opacity duration-500 flex flex-col justify-center items-center">
+        <button id="close-menu-btn"
+            class="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors">
+            <iconify-icon icon="solar:close-square-linear" width="24"></iconify-icon>
+        </button>
+        <div class="flex flex-col items-center gap-8 text-3xl font-bricolage font-medium">
+            <a href="#expertise" class="mobile-link text-white/70 hover:text-white hover:scale-105 transition-all">Notre
+                Approche</a>
+            <a href="#services"
+                class="mobile-link text-white/70 hover:text-white hover:scale-105 transition-all">Services</a>
+            <a href="#saas" class="mobile-link text-white/70 hover:text-white hover:scale-105 transition-all">SaaS
+                Facturation</a>
+            <a href="#contact"
+                class="mobile-link text-white/70 hover:text-white hover:scale-105 transition-all">S'associer</a>
+            <a href="#contact"
+                class="mobile-link mt-8 px-8 py-4 bg-white text-black font-semibold rounded-2xl text-lg hover:bg-neutral-200 hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)]">Nous
+                Contacter</a>
+        </div>
     </div>
 
     <!-- Hero Section -->
@@ -704,6 +726,29 @@
                 }
                 lastScroll = currentScroll;
             });
+
+            // Mobile Menu Toggle
+            const openMenuBtn = document.getElementById('open-menu-btn');
+            const closeMenuBtn = document.getElementById('close-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileLinks = document.querySelectorAll('.mobile-link');
+
+            function toggleMenu() {
+                const isOpen = mobileMenu.classList.contains('opacity-100');
+                if (isOpen) {
+                    mobileMenu.classList.remove('opacity-100', 'pointer-events-auto');
+                    mobileMenu.classList.add('opacity-0', 'pointer-events-none');
+                    document.body.style.overflow = '';
+                } else {
+                    mobileMenu.classList.remove('opacity-0', 'pointer-events-none');
+                    mobileMenu.classList.add('opacity-100', 'pointer-events-auto');
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+
+            if (openMenuBtn) openMenuBtn.addEventListener('click', toggleMenu);
+            if (closeMenuBtn) closeMenuBtn.addEventListener('click', toggleMenu);
+            mobileLinks.forEach(link => link.addEventListener('click', toggleMenu));
         });
 
         // Variables Globales Rubiks Cube

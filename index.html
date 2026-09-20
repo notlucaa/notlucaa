@@ -205,7 +205,7 @@
     <div id="main-nav"
         class="absolute md:fixed flex transition-transform duration-300 animate-slide-up [animation-delay:0.5s] z-50 opacity-0 pr-4 pl-4 top-6 right-0 left-0 justify-center pointer-events-none">
         <nav
-            class="pointer-events-auto flex transition-all duration-300 bg-neutral-950/80 md:bg-neutral-900/80 w-fit max-w-full border-white/10 border rounded-full py-2 px-3 md:px-6 shadow-2xl backdrop-blur-xl items-center gap-6 md:gap-8 justify-between">
+            class="pointer-events-auto flex transition-all duration-300 bg-[#0a0b10] w-fit max-w-full border-white/15 border rounded-full py-2 px-3 md:px-6 shadow-2xl items-center gap-6 md:gap-8 justify-between">
             <div class="flex items-center gap-3.5 pl-1 md:pl-2">
                 <div class="logo-infinity-morph" style="width: 52px; height: 52px;">
                     <div class="logo-morph-inner">
@@ -800,21 +800,22 @@
         const SPACING = 0.05;
         const TOTAL_SIZE = CUBE_SIZE + SPACING;
 
-        // CUBE NOIR, VIOLET & GRIS FONCÉ (Faces pleines bien différenciées)
+        // CUBE NOIR, VIOLET & GRIS ENCORE PLUS SOMBRE
         const COLORS = {
-            base: 0x050507, // Structure interne noir mat
-            U: 0x7c3aed,    // Face supérieure : VIOLET Royal (distinct et éclatant)
-            R: 0x5c6373,    // Face droite : GRIS Acier Fumé (clairement gris)
-            F: 0x14151a,    // Face avant : NOIR Obsidienne (clairement noir)
-            L: 0x333742,    // Face gauche : GRIS Anthracite Sombre
-            B: 0x0b0c10,    // Face arrière : NOIR Carbone
-            D: 0x4c1d95     // Face inférieure : VIOLET Nuit Améthyste
+            base: 0x030304, // Structure interne noir profond
+            U: 0x581c87,    // Face supérieure : Violet Sombre Profond
+            R: 0x3d4350,    // Face droite : Gris Acier Sombre Fumé
+            F: 0x0d0e12,    // Face avant : Noir Obsidienne Nuit
+            L: 0x22252c,    // Face gauche : Gris Anthracite Nuit
+            B: 0x07080a,    // Face arrière : Noir Carbone Absolu
+            D: 0x380f5c     // Face inférieure : Violet Pourpre Nuit Sombre
         };
 
         let scene, camera, renderer, controls;
         let cubes = [];
         let isAnimating = false;
         let moveHistory = [];
+        let autoScrambleInterval = null;
 
         const pivot = new THREE.Object3D();
         const moveQueue = [];
@@ -840,14 +841,14 @@
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             renderer.physicallyCorrectLights = true;
             renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            renderer.toneMappingExposure = 1.0;
+            renderer.toneMappingExposure = 0.95;
             container.appendChild(renderer.domElement);
 
-            // Éclairage studio neutre pour préserver la vraie couleur de chaque face
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            // Éclairage studio dosé pour préserver des teintes bien sombres
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.55);
             scene.add(ambientLight);
 
-            const dirLight = new THREE.DirectionalLight(0xffffff, 2.5);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 2.2);
             dirLight.position.set(5, 12, 8);
             dirLight.castShadow = true;
             dirLight.shadow.mapSize.width = 2048;
@@ -861,7 +862,7 @@
             rimLight.lookAt(0, 0, 0);
             scene.add(rimLight);
 
-            const fillLight = new THREE.DirectionalLight(0xd4d4d8, 0.85);
+            const fillLight = new THREE.DirectionalLight(0xd4d4d8, 0.7);
             fillLight.position.set(-8, -6, 6);
             scene.add(fillLight);
 
@@ -874,7 +875,8 @@
             window.addEventListener('resize', onWindowResizeCube);
 
             setTimeout(() => {
-                scrambleCube(5); // Initial scramble for visual interest
+                scrambleCube(3); // Petit mélange de départ
+                startAutoScramble(); // Mélange automatique toutes les 3 secondes
             }, 1000);
 
             animateCube();
@@ -1008,20 +1010,38 @@
             tween.start();
         }
 
-        function scrambleCube(count = 6) {
+        function startAutoScramble() {
+            if (autoScrambleInterval) clearInterval(autoScrambleInterval);
+            autoScrambleInterval = setInterval(() => {
+                if (!isAnimating && moveQueue.length === 0) {
+                    scrambleCube(1);
+                }
+            }, 3000);
+        }
+
+        function scrambleCube(count = 1) {
             if (isAnimating) return;
             for (let i = 0; i < count; i++) {
                 const axes = ['x', 'y', 'z'];
                 const axis = axes[Math.floor(Math.random() * axes.length)];
                 const index = Math.floor(Math.random() * 3) - 1;
                 const dir = Math.random() > 0.5 ? 1 : -1;
-                moveQueue.push({ axis, index, dir, duration: 120, isSolving: false });
+                moveQueue.push({ axis, index, dir, duration: 240, isSolving: false });
             }
             processQueue();
         }
 
         function solveCube() {
             if (isAnimating) return;
+
+            // Pause auto-scramble pour admirer le cube résolu puis reprise après 6 secondes
+            if (autoScrambleInterval) {
+                clearInterval(autoScrambleInterval);
+                autoScrambleInterval = null;
+                setTimeout(() => {
+                    startAutoScramble();
+                }, 6000);
+            }
 
             if (moveHistory.length === 0) {
                 // If no history, ensure all cubies are smoothly aligned to their solved home positions

@@ -1,4 +1,15 @@
 :root {
+    /* Brotherflow Core Theme Variables */
+    --bg-dark: #050507;
+    --bg-card: rgba(255, 255, 255, 0.03);
+    --accent-designer: #c084fc;
+    --accent-copy: #00f2ff;
+    --accent-gradient: linear-gradient(135deg, #c084fc 0%, #00f2ff 100%);
+    --text-light: #ffffff;
+    --text-muted: rgba(255, 255, 255, 0.65);
+    --font-heading: 'Outfit', 'Playfair Display', sans-serif;
+    --font-body: 'Outfit', 'Inter', sans-serif;
+
     /* Aura Enterprise Theme Variables */
     --aura-bg: #030303;
     --aura-bg-elevated: #0a0a0c;
@@ -2410,6 +2421,10 @@ a {
     color: var(--accent-copy) !important;
 }
 
+.accent-text-designer {
+    color: var(--accent-designer) !important;
+}
+
 .profile-frame {
     width: 100%;
     height: 500px;
@@ -2476,7 +2491,15 @@ a {
     margin-bottom: 4rem !important;
 }
 
-/* More Showcase Gradients for Row 2 */
+/* Showcase Gradients */
+.showcase-grid .card:nth-child(1) .card-visual {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #c084fc 100%);
+}
+
+.showcase-grid .card:nth-child(2) .card-visual {
+    background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 50%, #10b981 100%);
+}
+
 .showcase-grid .card:nth-child(4) .card-visual {
     background: linear-gradient(45deg, #1fa2ff, #12d8fa, #a6ffcb);
 }

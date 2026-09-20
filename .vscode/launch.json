@@ -2,15 +2,22 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "msedge",
+            "type": "chrome",
             "request": "launch",
-            "name": "Launch Edge",
+            "name": "Launch Chrome",
             "file": "${workspaceFolder}/index.html"
         },
         {
             "type": "chrome",
             "request": "launch",
-            "name": "Launch Chrome",
+            "name": "Run in Chrome (No Debug)",
+            "file": "${workspaceFolder}/index.html",
+            "noDebug": true
+        },
+        {
+            "type": "msedge",
+            "request": "launch",
+            "name": "Launch Edge",
             "file": "${workspaceFolder}/index.html"
         }
     ]

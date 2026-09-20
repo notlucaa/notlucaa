@@ -41,13 +41,13 @@ window.addEventListener("mousemove", function (e) {
 });
 
 window.addEventListener("mousedown", () => {
-    cursorOutline.style.transform = "translate(-50%, -50%) scale(0.7)";
-    cursorDot.style.transform = "translate(-50%, -50%) scale(1.5)";
+    if (cursorOutline) cursorOutline.style.transform = "translate(-50%, -50%) scale(0.7)";
+    if (cursorDot) cursorDot.style.transform = "translate(-50%, -50%) scale(1.5)";
 });
 
 window.addEventListener("mouseup", () => {
-    cursorOutline.style.transform = "translate(-50%, -50%) scale(1)";
-    cursorDot.style.transform = "translate(-50%, -50%) scale(1)";
+    if (cursorOutline) cursorOutline.style.transform = "translate(-50%, -50%) scale(1)";
+    if (cursorDot) cursorDot.style.transform = "translate(-50%, -50%) scale(1)";
 });
 
 const magneticButtons = document.querySelectorAll('.btn-primary, .explore-btn, .nav-links a, .btn-submit, .back-btn');
@@ -158,8 +158,10 @@ document.head.appendChild(styleSheet);
 const createStarryNight = () => {
     const container = document.querySelector('.ambient-bg');
     if (!container) return;
+    if (container.querySelector('canvas.starry-night-canvas')) return; // Prevent duplicate canvases
 
     const canvas = document.createElement('canvas');
+    canvas.className = 'starry-night-canvas';
     canvas.style.position = 'absolute';
     canvas.style.top = '0';
     canvas.style.left = '0';
@@ -228,8 +230,6 @@ const createStarryNight = () => {
     resize();
     animateStars();
 };
-// Initialize Stars
-document.addEventListener('DOMContentLoaded', createStarryNight);
 
 
 // --- SCROLL ANIMATION OBSERVER ---
@@ -278,7 +278,7 @@ if (contactForm) {
         e.preventDefault();
 
         // Start Loading
-        submitBtn.classList.add('loading');
+        if (submitBtn) submitBtn.classList.add('loading');
 
         // Extract form data
         const formData = new FormData(contactForm);
@@ -289,6 +289,9 @@ if (contactForm) {
         };
 
         try {
+            if (!supabaseInstance) {
+                throw new Error("Supabase n'est pas initialisé.");
+            }
             // Save to Supabase (table must be named 'messages')
             const { error } = await supabaseInstance
                 .from('messages')
@@ -300,22 +303,26 @@ if (contactForm) {
             }
 
             // Success
-            submitBtn.classList.remove('loading');
-            contactForm.classList.add('hidden');
-            successMsg.classList.add('visible');
+            if (submitBtn) submitBtn.classList.remove('loading');
+            if (contactForm) contactForm.classList.add('hidden');
+            if (successMsg) successMsg.classList.add('visible');
 
         } catch (error) {
             console.error('Submission failed:', error.message || error);
             alert("Erreur : " + (error.message || "Vérifiez vos politiques RLS sur Supabase."));
-            submitBtn.classList.remove('loading');
+            if (submitBtn) submitBtn.classList.remove('loading');
         }
     });
 }
 
 window.resetForm = function () {
-    contactForm.reset();
-    contactForm.classList.remove('hidden');
-    successMsg.classList.remove('visible');
+    if (contactForm) {
+        contactForm.reset();
+        contactForm.classList.remove('hidden');
+    }
+    if (successMsg) {
+        successMsg.classList.remove('visible');
+    }
 };
 
 
@@ -598,11 +605,15 @@ document.addEventListener('click', (e) => {
     if (!link) return;
 
     const href = link.getAttribute('href');
-    // Check if internal link that requires transition
+    // Check if internal local link that requires transition
     if (href &&
         !href.startsWith('#') &&
         !href.startsWith('mailto:') &&
         !href.startsWith('tel:') &&
+        !href.startsWith('javascript:') &&
+        !href.startsWith('http://') &&
+        !href.startsWith('https://') &&
+        !href.startsWith('//') &&
         link.target !== '_blank' &&
         !e.ctrlKey && !e.metaKey) {
 
@@ -611,7 +622,7 @@ document.addEventListener('click', (e) => {
 
         setTimeout(() => {
             window.location.href = href;
-        }, 800); // Wait for CSS animation (0.8s)
+        }, 500); // Wait for CSS animation
     }
 });
 

@@ -325,7 +325,7 @@
                             automatiser vos process et démultiplier vos ventes.
                         </p>
 
-                        <div class="flex flex-col gap-4 mt-5">
+                        <div class="flex flex-col gap-3 mt-5">
                             <a href="#services"
                                 class="group flex items-center justify-between w-full p-2.5 rounded-xl bg-purple-500/20 border border-purple-500/30 hover:bg-purple-500/40 transition-all duration-300">
                                 <span class="text-xs font-medium tracking-wide text-white ml-2">Découvrir nos
@@ -336,6 +336,19 @@
                                         width="14"></iconify-icon>
                                 </div>
                             </a>
+
+                            <div class="flex items-center gap-2">
+                                <button id="btn-solve" onclick="solveCube()"
+                                    class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-white/5 hover:bg-purple-500/20 border border-white/10 hover:border-purple-500/40 text-xs font-medium text-white/90 hover:text-white transition-all duration-300 shadow-lg group">
+                                    <iconify-icon icon="solar:magic-stick-3-linear" class="text-purple-400 group-hover:rotate-12 transition-transform" width="16"></iconify-icon>
+                                    <span>Résoudre le Cube</span>
+                                </button>
+                                <button id="btn-scramble" onclick="scrambleCube(6)"
+                                    title="Mélanger le cube"
+                                    class="flex items-center justify-center p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white/70 hover:text-white transition-all duration-300">
+                                    <iconify-icon icon="solar:refresh-linear" width="16"></iconify-icon>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -373,9 +386,9 @@
                             Approche</span>
                     </div>
                     <h2
-                        class="text-4xl md:text-7xl font-bricolage font-medium tracking-tighter text-white leading-[0.9]">
-                        Design Web
-                        <span class="text-white">& Copywriting.</span>
+                        class="text-4xl md:text-7xl font-bricolage font-medium tracking-tighter leading-[0.9]">
+                        <span class="inline-block text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-200 to-blue-400">Design Web</span>
+                        <span class="block text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-300 to-purple-400">& Copywriting.</span>
                     </h2>
                 </div>
             </div>
@@ -787,15 +800,15 @@
         const SPACING = 0.05;
         const TOTAL_SIZE = CUBE_SIZE + SPACING;
 
-        // CUBE VIOLET OBSIDIENNE RÉALISTE & SOMBRE
+        // CUBE COULEURS DIFFÉRENCIÉES (Une face = Une couleur distincte)
         const COLORS = {
-            base: 0x07060a, // Seams internes noir furtif mat
-            U: 0x8b5cf6,    // Face supérieure : Violet Signature (reflet vibrant et élégant)
-            R: 0x581c87,    // Face droite : Améthyste sombre royal
-            F: 0x241838,    // Face avant : Obsidienne profonde à nuance violette
-            L: 0x3b0764,    // Face gauche : Pourpre velours nuit
-            B: 0x181026,    // Face arrière : Carbone graphite teinté
-            D: 0x100a1c     // Face inférieure : Noir obsidienne sombre
+            base: 0x0c0d12, // Structure interne noir furtif mat
+            U: 0x9333ea,    // Face supérieure : Violet Signature Brother Flow
+            R: 0xe11d48,    // Face droite : Rouge Rubis vif
+            F: 0x2563eb,    // Face avant : Bleu Électrique royal
+            L: 0x10b981,    // Face gauche : Vert Émeraude
+            B: 0xf59e0b,    // Face arrière : Ambre / Orange chaud
+            D: 0xf8fafc     // Face inférieure : Blanc Titane pur
         };
 
         let scene, camera, renderer, controls;
@@ -827,14 +840,14 @@
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             renderer.physicallyCorrectLights = true;
             renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            renderer.toneMappingExposure = 1.05;
+            renderer.toneMappingExposure = 1.0;
             container.appendChild(renderer.domElement);
 
-            // Éclairage studio réaliste
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            // Éclairage studio dosé pour rendu sombre et contrasté
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
             scene.add(ambientLight);
 
-            const dirLight = new THREE.DirectionalLight(0xffffff, 2.8);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 2.4);
             dirLight.position.set(5, 12, 8);
             dirLight.castShadow = true;
             dirLight.shadow.mapSize.width = 2048;
@@ -843,12 +856,12 @@
             scene.add(dirLight);
 
             // Rim light violette de signature Brother Flow
-            const rimLight = new THREE.SpotLight(0xa855f7, 35);
+            const rimLight = new THREE.SpotLight(0xa855f7, 30);
             rimLight.position.set(-10, 6, -6);
             rimLight.lookAt(0, 0, 0);
             scene.add(rimLight);
 
-            const fillLight = new THREE.DirectionalLight(0x7c3aed, 0.9);
+            const fillLight = new THREE.DirectionalLight(0x7c3aed, 0.7);
             fillLight.position.set(-8, -6, 6);
             scene.add(fillLight);
 
@@ -861,14 +874,7 @@
             window.addEventListener('resize', onWindowResizeCube);
 
             setTimeout(() => {
-                scrambleCube(3); // Small initial scramble for looks
-
-                // Add an auto-play interval after the first initial scramble
-                setInterval(() => {
-                    if (!isAnimating && moveQueue.length === 0) {
-                        scrambleCube(1);
-                    }
-                }, 5000);
+                scrambleCube(5); // Initial scramble for visual interest
             }, 1000);
 
             animateCube();
@@ -1002,23 +1008,42 @@
             tween.start();
         }
 
-        function scrambleCube(count = 15) {
+        function scrambleCube(count = 6) {
             if (isAnimating) return;
             for (let i = 0; i < count; i++) {
                 const axes = ['x', 'y', 'z'];
                 const axis = axes[Math.floor(Math.random() * axes.length)];
                 const index = Math.floor(Math.random() * 3) - 1;
                 const dir = Math.random() > 0.5 ? 1 : -1;
-                moveQueue.push({ axis, index, dir, duration: 100, isSolving: false });
+                moveQueue.push({ axis, index, dir, duration: 120, isSolving: false });
             }
             processQueue();
         }
 
         function solveCube() {
-            if (isAnimating || moveHistory.length === 0) return;
+            if (isAnimating) return;
+
+            if (moveHistory.length === 0) {
+                // If no history, ensure all cubies are smoothly aligned to their solved home positions
+                cubes.forEach(cube => {
+                    new TWEEN.Tween(cube.position)
+                        .to({
+                            x: cube.userData.x * TOTAL_SIZE,
+                            y: cube.userData.y * TOTAL_SIZE,
+                            z: cube.userData.z * TOTAL_SIZE
+                        }, 500)
+                        .easing(TWEEN.Easing.Cubic.Out)
+                        .start();
+                    new TWEEN.Tween(cube.rotation)
+                        .to({ x: 0, y: 0, z: 0 }, 500)
+                        .easing(TWEEN.Easing.Cubic.Out)
+                        .start();
+                });
+                return;
+            }
+
             const history = [...moveHistory];
             moveHistory = [];
-            updateUI();
             history.reverse().forEach(move => {
                 moveQueue.push({
                     axis: move.axis,
@@ -1054,17 +1079,7 @@
         }
 
         function updateUI() {
-            const moveCounterEl = document.getElementById('move-counter');
-            const btnSolve = document.getElementById('btn-solve');
-            if (moveCounterEl) moveCounterEl.innerText = moveHistory.length;
-
-            if (btnSolve) {
-                if (moveHistory.length === 0) {
-                    btnSolve.disabled = true;
-                } else {
-                    btnSolve.disabled = false;
-                }
-            }
+            // Keep buttons always active so user can solve or scramble at will
         }
 
         function showToast() {

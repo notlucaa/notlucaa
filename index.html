@@ -800,15 +800,15 @@
         const SPACING = 0.05;
         const TOTAL_SIZE = CUBE_SIZE + SPACING;
 
-        // CUBE COULEURS DIFFÉRENCIÉES (Une face = Une couleur distincte)
+        // CUBE NOIR, VIOLET & GRIS FONCÉ (Faces pleines bien différenciées)
         const COLORS = {
-            base: 0x0c0d12, // Structure interne noir furtif mat
-            U: 0x9333ea,    // Face supérieure : Violet Signature Brother Flow
-            R: 0xe11d48,    // Face droite : Rouge Rubis vif
-            F: 0x2563eb,    // Face avant : Bleu Électrique royal
-            L: 0x10b981,    // Face gauche : Vert Émeraude
-            B: 0xf59e0b,    // Face arrière : Ambre / Orange chaud
-            D: 0xf8fafc     // Face inférieure : Blanc Titane pur
+            base: 0x050507, // Structure interne noir mat
+            U: 0x7c3aed,    // Face supérieure : VIOLET Royal (distinct et éclatant)
+            R: 0x5c6373,    // Face droite : GRIS Acier Fumé (clairement gris)
+            F: 0x14151a,    // Face avant : NOIR Obsidienne (clairement noir)
+            L: 0x333742,    // Face gauche : GRIS Anthracite Sombre
+            B: 0x0b0c10,    // Face arrière : NOIR Carbone
+            D: 0x4c1d95     // Face inférieure : VIOLET Nuit Améthyste
         };
 
         let scene, camera, renderer, controls;
@@ -843,11 +843,11 @@
             renderer.toneMappingExposure = 1.0;
             container.appendChild(renderer.domElement);
 
-            // Éclairage studio dosé pour rendu sombre et contrasté
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            // Éclairage studio neutre pour préserver la vraie couleur de chaque face
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
             scene.add(ambientLight);
 
-            const dirLight = new THREE.DirectionalLight(0xffffff, 2.4);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 2.5);
             dirLight.position.set(5, 12, 8);
             dirLight.castShadow = true;
             dirLight.shadow.mapSize.width = 2048;
@@ -855,13 +855,13 @@
             dirLight.shadow.bias = -0.0001;
             scene.add(dirLight);
 
-            // Rim light violette de signature Brother Flow
-            const rimLight = new THREE.SpotLight(0xa855f7, 30);
+            // Rim light subtile
+            const rimLight = new THREE.SpotLight(0xa855f7, 20);
             rimLight.position.set(-10, 6, -6);
             rimLight.lookAt(0, 0, 0);
             scene.add(rimLight);
 
-            const fillLight = new THREE.DirectionalLight(0x7c3aed, 0.7);
+            const fillLight = new THREE.DirectionalLight(0xd4d4d8, 0.85);
             fillLight.position.set(-8, -6, 6);
             scene.add(fillLight);
 

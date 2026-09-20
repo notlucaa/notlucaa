@@ -20,15 +20,13 @@
     <!-- SEO Technique -->
     <link rel="canonical" href="https://brotherflow.fr/">
 
-    <!-- Preconnect pour Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
 
-    <!-- Three.js & Tween.js for Rubik's Cube -->
+    <!-- Three.js & Plugins for Rubik's Cube -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
 
     <link
@@ -818,7 +816,6 @@
         let isAnimating = false;
         let moveHistory = [];
         let autoScrambleInterval = null;
-        let isCubeInView = true;
 
         const pivot = new THREE.Object3D();
         const moveQueue = [];
@@ -837,17 +834,12 @@
             camera.position.set(6, 4, 6);
             camera.lookAt(0, 0, 0);
 
-            // WebGL Renderer haute performance sans maps d'ombres superflues
-            renderer = new THREE.WebGLRenderer({
-                antialias: true,
-                alpha: true,
-                powerPreference: "high-performance",
-                precision: "mediump"
-            });
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            // Cap à 1.5 max pour fluidité maximale sur écrans Retina/4K
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-            renderer.shadowMap.enabled = false;
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.physicallyCorrectLights = true;
             renderer.toneMapping = THREE.ACESFilmicToneMapping;
             renderer.toneMappingExposure = 0.95;
             container.appendChild(renderer.domElement);
@@ -858,6 +850,10 @@
 
             const dirLight = new THREE.DirectionalLight(0xffffff, 2.2);
             dirLight.position.set(5, 12, 8);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 2048;
+            dirLight.shadow.mapSize.height = 2048;
+            dirLight.shadow.bias = -0.0001;
             scene.add(dirLight);
 
             // Rim light subtile
@@ -878,27 +874,16 @@
 
             window.addEventListener('resize', onWindowResizeCube);
 
-            // Observer pour couper le rendu quand le cube est hors de l'écran (gain perfs énorme au scroll)
-            if ('IntersectionObserver' in window) {
-                const heroObserver = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        isCubeInView = entry.isIntersecting;
-                    });
-                }, { threshold: 0.05 });
-                heroObserver.observe(container);
-            }
-
             setTimeout(() => {
                 scrambleCube(3); // Petit mélange de départ
                 startAutoScramble(); // Mélange automatique toutes les 3 secondes
-            }, 800);
+            }, 1000);
 
             animateCube();
         }
 
         function createPlasticNoiseTexture() {
-            // Optimisation : 128x128 au lieu de 512x512 (génération 16x plus rapide, 0ms freeze)
-            const size = 128;
+            const size = 512;
             const canvas = document.createElement('canvas');
             canvas.width = size;
             canvas.height = size;
@@ -911,7 +896,7 @@
             const data = imageData.data;
 
             for (let i = 0; i < data.length; i += 4) {
-                const grain = (Math.random() - 0.5) * 18;
+                const grain = (Math.random() - 0.5) * 20;
                 data[i] = data[i] + grain;
                 data[i + 1] = data[i + 1] + grain;
                 data[i + 2] = data[i + 2] + grain;
@@ -922,7 +907,7 @@
             const texture = new THREE.CanvasTexture(canvas);
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set(4, 4);
+            texture.repeat.set(2, 2);
 
             return texture;
         }
@@ -941,32 +926,25 @@
                 bumpScale: 0.003
             };
 
-            // Matériaux partagés : 7 instances au lieu de 162 pour éliminer les micro-saccades de compilation
-            const sharedMaterials = {
-                base: new THREE.MeshPhysicalMaterial({ ...plasticProps, color: COLORS.base }),
-                R: new THREE.MeshPhysicalMaterial({ ...plasticProps, color: COLORS.R }),
-                L: new THREE.MeshPhysicalMaterial({ ...plasticProps, color: COLORS.L }),
-                U: new THREE.MeshPhysicalMaterial({ ...plasticProps, color: COLORS.U }),
-                D: new THREE.MeshPhysicalMaterial({ ...plasticProps, color: COLORS.D }),
-                F: new THREE.MeshPhysicalMaterial({ ...plasticProps, color: COLORS.F }),
-                B: new THREE.MeshPhysicalMaterial({ ...plasticProps, color: COLORS.B })
-            };
-
             for (let x = -1; x <= 1; x++) {
                 for (let y = -1; y <= 1; y++) {
                     for (let z = -1; z <= 1; z++) {
 
                         const materials = [
-                            x === 1 ? sharedMaterials.R : sharedMaterials.base,
-                            x === -1 ? sharedMaterials.L : sharedMaterials.base,
-                            y === 1 ? sharedMaterials.U : sharedMaterials.base,
-                            y === -1 ? sharedMaterials.D : sharedMaterials.base,
-                            z === 1 ? sharedMaterials.F : sharedMaterials.base,
-                            z === -1 ? sharedMaterials.B : sharedMaterials.base
+                            new THREE.MeshPhysicalMaterial({ ...plasticProps, color: x === 1 ? COLORS.R : COLORS.base }),
+                            new THREE.MeshPhysicalMaterial({ ...plasticProps, color: x === -1 ? COLORS.L : COLORS.base }),
+                            new THREE.MeshPhysicalMaterial({ ...plasticProps, color: y === 1 ? COLORS.U : COLORS.base }),
+                            new THREE.MeshPhysicalMaterial({ ...plasticProps, color: y === -1 ? COLORS.D : COLORS.base }),
+                            new THREE.MeshPhysicalMaterial({ ...plasticProps, color: z === 1 ? COLORS.F : COLORS.base }),
+                            new THREE.MeshPhysicalMaterial({ ...plasticProps, color: z === -1 ? COLORS.B : COLORS.base }),
                         ];
 
                         const cube = new THREE.Mesh(geometry, materials);
+
                         cube.position.set(x * TOTAL_SIZE, y * TOTAL_SIZE, z * TOTAL_SIZE);
+                        cube.castShadow = true;
+                        cube.receiveShadow = true;
+
                         cube.userData = { x, y, z };
 
                         scene.add(cube);
@@ -1145,8 +1123,6 @@
         function animateCube(time) {
             requestAnimationFrame(animateCube);
             TWEEN.update(time);
-
-            if (!isCubeInView) return; // Économie de GPU quand l'utilisateur consulte le reste de la page
 
             if (!isResettingCamera && camera) {
                 // Tourner doucement tout seul en diagonal

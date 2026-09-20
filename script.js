@@ -23,32 +23,52 @@ const cursorOutline = document.querySelector("[data-cursor-outline]");
 // Helper to safely update styles
 const safeStyle = (el, prop, val) => { if (el) el.style[prop] = val; };
 
-window.addEventListener("mousemove", function (e) {
-    const posX = e.clientX;
-    const posY = e.clientY;
+if (cursorDot || cursorOutline) {
+    let mouseX = -100, mouseY = -100;
+    let outlineX = -100, outlineY = -100;
+    let cursorTicking = false;
 
-    if (cursorDot) {
-        cursorDot.style.left = `${posX}px`;
-        cursorDot.style.top = `${posY}px`;
+    function renderCursor() {
+        outlineX += (mouseX - outlineX) * 0.25;
+        outlineY += (mouseY - outlineY) * 0.25;
+
+        if (cursorOutline) {
+            cursorOutline.style.left = `${outlineX}px`;
+            cursorOutline.style.top = `${outlineY}px`;
+        }
+
+        if (Math.abs(mouseX - outlineX) > 0.2 || Math.abs(mouseY - outlineY) > 0.2) {
+            requestAnimationFrame(renderCursor);
+        } else {
+            cursorTicking = false;
+        }
     }
 
-    if (cursorOutline) {
-        cursorOutline.animate({
-            left: `${posX}px`,
-            top: `${posY}px`
-        }, { duration: 400, fill: "forwards", easing: "ease-out" });
-    }
-});
+    window.addEventListener("mousemove", function (e) {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
 
-window.addEventListener("mousedown", () => {
-    if (cursorOutline) cursorOutline.style.transform = "translate(-50%, -50%) scale(0.7)";
-    if (cursorDot) cursorDot.style.transform = "translate(-50%, -50%) scale(1.5)";
-});
+        if (cursorDot) {
+            cursorDot.style.left = `${mouseX}px`;
+            cursorDot.style.top = `${mouseY}px`;
+        }
 
-window.addEventListener("mouseup", () => {
-    if (cursorOutline) cursorOutline.style.transform = "translate(-50%, -50%) scale(1)";
-    if (cursorDot) cursorDot.style.transform = "translate(-50%, -50%) scale(1)";
-});
+        if (!cursorTicking) {
+            cursorTicking = true;
+            requestAnimationFrame(renderCursor);
+        }
+    }, { passive: true });
+
+    window.addEventListener("mousedown", () => {
+        if (cursorOutline) cursorOutline.style.transform = "translate(-50%, -50%) scale(0.7)";
+        if (cursorDot) cursorDot.style.transform = "translate(-50%, -50%) scale(1.5)";
+    });
+
+    window.addEventListener("mouseup", () => {
+        if (cursorOutline) cursorOutline.style.transform = "translate(-50%, -50%) scale(1)";
+        if (cursorDot) cursorDot.style.transform = "translate(-50%, -50%) scale(1)";
+    });
+}
 
 const magneticButtons = document.querySelectorAll('.btn-primary, .explore-btn, .nav-links a, .btn-submit, .back-btn');
 
@@ -59,22 +79,21 @@ magneticButtons.forEach(btn => {
         const y = e.clientY - rect.top - rect.height / 2;
 
         btn.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
-    });
+    }, { passive: true });
 
     btn.addEventListener('mouseleave', () => {
         btn.style.transform = 'translate(0px, 0px)';
     });
 });
 
-// Card Spotlight Effect
+// Card Spotlight Effect optimisé sans reflow synchrone
 document.querySelectorAll('.card, .project-card').forEach(card => {
     card.addEventListener('mousemove', e => {
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        const x = e.offsetX !== undefined ? e.offsetX : (e.clientX - card.getBoundingClientRect().left);
+        const y = e.offsetY !== undefined ? e.offsetY : (e.clientY - card.getBoundingClientRect().top);
         card.style.setProperty('--mouse-x', `${x}px`);
         card.style.setProperty('--mouse-y', `${y}px`);
-    });
+    }, { passive: true });
 });
 
 // Parallax Effect on Hero
@@ -193,35 +212,38 @@ const createStarryNight = () => {
 
     const initStars = () => {
         stars = [];
-        const starCount = Math.floor((width * height) / 6000); // Lower density (lighter)
+        // Limiter le nombre d'étoiles à 120 max pour ne pas surcharger le thread principal
+        const starCount = Math.min(120, Math.floor((width * height) / 12000));
         for (let i = 0; i < starCount; i++) {
             stars.push({
                 x: Math.random() * width,
                 y: Math.random() * height,
-                size: Math.random() * 1.2, // Smaller stars
+                size: Math.random() * 1.5 + 0.5,
                 alpha: Math.random(),
-                speed: Math.random() * 0.015, // Slower twinkle
-                baseAlpha: Math.random() * 0.3 + 0.1 // Fainter (0.1 to 0.4)
+                speed: Math.random() * 0.012 + 0.003,
+                baseAlpha: Math.random() * 0.3 + 0.1
             });
         }
     };
 
     const animateStars = () => {
         if (!container.isConnected) return; // Stop if container removed
+        if (document.hidden) {
+            requestAnimationFrame(animateStars);
+            return;
+        }
 
         ctx.clearRect(0, 0, width, height);
         ctx.fillStyle = 'white';
 
-        stars.forEach(star => {
-            // Twinkle
+        for (let i = 0; i < stars.length; i++) {
+            const star = stars[i];
             star.alpha += star.speed;
-            const opacity = star.baseAlpha + Math.sin(star.alpha) * 0.15; // Softer twinkle
+            const opacity = star.baseAlpha + Math.sin(star.alpha) * 0.15;
 
-            ctx.globalAlpha = Math.max(0, Math.min(1, opacity));
-            ctx.beginPath();
-            ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-            ctx.fill();
-        });
+            ctx.globalAlpha = opacity < 0 ? 0 : (opacity > 1 ? 1 : opacity);
+            ctx.fillRect(star.x, star.y, star.size, star.size);
+        }
 
         requestAnimationFrame(animateStars);
     };
@@ -587,16 +609,19 @@ const runVortex = () => {
     window.addEventListener('resize', handleResize);
 };
 
-// Initialize after DOM load
-document.addEventListener('DOMContentLoaded', () => {
+// Initialize after DOM load once only
+let appInitialized = false;
+const initApp = () => {
+    if (appInitialized) return;
+    appInitialized = true;
     createStarryNight();
     runVortex();
-});
+};
 
-// Fallback if DOMContentLoaded already fired
-if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    createStarryNight();
-    runVortex();
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    initApp();
 }
 
 /* --- PAGE TRANSITIONS --- */
